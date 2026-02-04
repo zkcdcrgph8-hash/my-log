@@ -3,242 +3,108 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ひとこと日記プロトタイプ</title>
+    <title>私だけの秘密日記</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-    /* 1. 全体のキャンバス設定（山羊座の安定感） */
-    body {
-        font-family: 'Helvetica Neue', Arial, 'Hiragino Kaku Gothic ProN', 'Hiragino Sans', sans-serif;
-        background-color: #f4f7f6; /* 目に優しい薄いグレー */
-        color: #333;
-        max-width: 600px;
-        margin: 40px auto;
-        padding: 20px;
-        line-height: 1.6;
-    }
-
-    h1 {
-        text-align: center;
-        color: #2c3e50;
-        font-weight: 300;
-        letter-spacing: 2px;
-        margin-bottom: 40px;
-    }
-
-    /* 2. 入力エリアを「浮き上がるカード」風に（おとめ座の整理術） */
-    .section {
-        background: white;
-        padding: 25px;
-        border-radius: 12px;
-        box-shadow: 0 4px 15px rgba(0,0,0,0.05); /* 柔らかな影 */
-        margin-bottom: 30px;
-    }
-
-    h2 {
-        font-size: 1rem;
-        color: #7f8c8d;
-        margin-top: 0;
-        border-left: 4px solid #33b074;
-        padding-left: 10px;
-    }
-
-    /* 3. 入力欄とボタンの洗練 */
-    input[type="text"] {
-        width: 100%;
-        box-sizing: border-box; /* 枠線を含めて幅100%にする */
-        padding: 12px;
-        border: 1px solid #ddd;
-        border-radius: 6px;
-        font-size: 16px;
-        margin-bottom: 10px;
-        transition: border 0.3s;
-    }
-
-    input[type="text"]:focus {
-        outline: none;
-        border-color: #33b074; /* 入力中だけ色を変える */
-    }
-
-    button {
-        width: 100%;
-        padding: 12px;
-        background-color: #33b074;
-        color: white;
-        border: none;
-        border-radius: 6px;
-        font-size: 16px;
-        font-weight: bold;
-        cursor: pointer;
-        transition: background 0.3s, transform 0.1s;
-    }
-
-    button:hover {
-        background-color: #2a9260;
-    }
-
-    button:active {
-        transform: scale(0.98); /* 押した時に少し凹む演出 */
-    }
-
-    /* 4. 日記リスト（美しき蓄積） */
-    .diary-item {
-        background: white;
-        margin-bottom: 15px;
-        padding: 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.03);
-        transition: transform 0.2s;
-    }
-
-    .diary-item:hover {
-        transform: translateY(-2px); /* ホバーで少し浮き上がる */
-    }
-
-    .date {
-        font-size: 0.75rem;
-        color: #95a5a6;
-        margin-bottom: 8px;
-    }
-
-    .content-row {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-    }
-
-    /* 削除ボタンを「控えめ」にする */
-    .delete-btn {
-        background: transparent;
-        color: #e74c3c;
-        border: 1px solid #e74c3c;
-        width: auto;
-        padding: 4px 10px;
-        font-size: 0.7rem;
-    }
-
-    .delete-btn:hover {
-        background: #e74c3c;
-        color: white;
-    }
-</style>
+    <style>
+        /* おとめ座のセンスで整えるシンプルなデザイン */
+        body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; }
+        .hidden { display: none; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        button:hover { background: #0056b3; }
+        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; }
+        .logout-btn { background: #666; font-size: 12px; width: auto; float: right; }
+    </style>
 </head>
 <body>
-    <h1>ひとこと日記</h1>
 
-    <div class="section">
-        <h2>新しい記録</h2>
-        <input type="text" id="content" placeholder="今の気持ちは？">
-        <button onclick="saveDiary()">保存</button>
+    <div id="auth-section" class="card">
+        <h2>ログイン / 新規登録</h2>
+        <input type="email" id="email" placeholder="メールアドレス">
+        <input type="password" id="password" placeholder="パスワード">
+        <button onclick="handleSignUp()">新規登録</button>
+        <button onclick="handleLogin()" style="background:#28a745;">ログイン</button>
     </div>
 
-    <div class="section">
-        <h2>記録を検索</h2>
-        <input type="text" id="search-input" placeholder="キーワードで絞り込み..." oninput="filterDiaries()">
+    <div id="main-section" class="hidden">
+        <button class="logout-btn" onclick="handleLogout()">ログアウト</button>
+        <h2>今日の日記</h2>
+        <div class="card">
+            <textarea id="content" placeholder="何があった？" rows="3"></textarea>
+            <button onclick="saveEntry()">保存する</button>
+        </div>
+        <div id="entries"></div>
     </div>
-
-    <h2>これまでの記録</h2>
-    <ul id="diary-list"></ul>
 
     <script>
-        // --- 設定エリア ---
+        // --- 設定 ---
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
-        const SUPABASE_ANON_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
-        const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        let allDiaries = []; // 全データを一時的に保存しておく「作業机」
+        const authSection = document.getElementById('auth-section');
+        const mainSection = document.getElementById('main-section');
 
-        // ページを開いた時に自動実行
-        window.onload = fetchDiaries;
+        // --- 1. ログイン状態の監視 ---
+        supabase.auth.onAuthStateChange((event, session) => {
+            if (session) {
+                authSection.classList.add('hidden');
+                mainSection.classList.remove('hidden');
+                loadEntries();
+            } else {
+                authSection.classList.remove('hidden');
+                mainSection.classList.add('hidden');
+            }
+        });
 
-        // --- A. データを取ってくる関数 ---
-        async function fetchDiaries() {
-            const { data, error } = await mySupabase
+        // --- 2. 認証機能 ---
+        async function handleSignUp() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await supabase.auth.signUp({ email, password });
+            if (error) alert(error.message); else alert("登録完了！そのままログインしてください。");
+        }
+
+        async function handleLogin() {
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            if (error) alert(error.message);
+        }
+
+        async function handleLogout() {
+            await supabase.auth.signOut();
+        }
+
+        // --- 3. 日記機能 ---
+        async function saveEntry() {
+            const content = document.getElementById('content').value;
+            // ログイン中のユーザー情報を取得
+            const { data: { user } } = await supabase.auth.getUser();
+            
+            const { error } = await supabase.from('entries').insert([{ 
+                content: content,
+                user_id: user.id  // ここで自分のIDを刻印する
+            }]);
+            
+            if (error) alert(error.message);
+            else {
+                document.getElementById('content').value = '';
+                loadEntries();
+            }
+        }
+
+        async function loadEntries() {
+            const { data, error } = await supabase
                 .from('entries')
                 .select('*')
                 .order('created_at', { ascending: false });
-
-            if (error) {
-                console.error('読み込み失敗:', error.message);
-            } else {
-                allDiaries = data; // データを「作業机」に置く
-                displayDiaries(allDiaries); // 表示する
-            }
-        }
-
-        // --- B. 画面に表示する関数（削除ボタンを追加！） ---
-        function displayDiaries(diaries) {
-	        const list = document.getElementById('diary-list');
-        	list.innerHTML = ''; 
-
-	        diaries.forEach(entry => {
-        	    const li = document.createElement('li');
- 		    li.className = 'diary-item';
             
-            const date = new Date(entry.created_at).toLocaleString('ja-JP');
-            
-            // 削除ボタンをHTMLの中に組み込みます
-            // entry.id を使って「どの日記を消すか」を特定します
-            li.innerHTML = `
-		    <div class="date">${date}</div>
-		    <div class="content-row">
-		        <div>${entry.content}</div>
-		        <button class="delete-btn" onclick="deleteDiary(${entry.id})">削除</button>
-		    </div>
-		`;
-            list.appendChild(li);
-        });
+            if (error) console.error(error);
+            const container = document.getElementById('entries');
+            container.innerHTML = data.map(e => `<div class="entry">${e.content}<br><small>${new Date(e.created_at).toLocaleString()}</small></div>`).join('');
         }
-
-        // --- C. 検索（フィルタリング）する関数 ---
-        function filterDiaries() {
-            // 検索窓に入力された文字を取得
-            const query = document.getElementById('search-input').value.toLowerCase();
-            
-            // 作業机(allDiaries)の中から、文字が含まれるものだけを抽出（おとめ座の選別）
-            const filtered = allDiaries.filter(entry => {
-                return entry.content.toLowerCase().includes(query);
-            });
-
-            // 抽出した結果だけを画面に出す
-            displayDiaries(filtered);
-        }
-
-        // --- D. 保存する関数 ---
-        async function saveDiary() {
-            const contentInput = document.getElementById('content');
-            const text = contentInput.value;
-            if (!text) return;
-
-            const { error } = await mySupabase
-                .from('entries')
-                .insert([{ content: text }]);
-
-            if (error) {
-                alert('失敗: ' + error.message);
-            } else {
-                contentInput.value = ''; 
-                fetchDiaries(); // 保存後に再読み込み
-            }
-        }
-
-	// --- E. データを削除する関数（新登場！） ---
-    		async function deleteDiary(id) {
-        		if (!confirm('本当にこの記録を消してもよろしいですか？')) return;
-
-        // ここでも登場！ { error } の分割代入
-        const { error } = await mySupabase
-            .from('entries')
-            .delete()           // 削除せよ
-            .eq('id', id);      // ただし「id」が一致するものだけを！
-
-        if (error) {
-            alert('削除失敗: ' + error.message);
-        } else {
-            // 削除に成功したら、手元の作業机からも消して再表示
-            fetchDiaries(); 
-        }
-     }
-
     </script>
 </body>
 </html>
