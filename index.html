@@ -46,36 +46,91 @@
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
 
-        // --- 1. ログイン状態の監視 ---
-        supabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                authSection.classList.add('hidden');
-                mainSection.classList.remove('hidden');
-                loadEntries();
-            } else {
-                authSection.classList.remove('hidden');
-                mainSection.classList.add('hidden');
-            }
-        });
+// 1. 変数名を supabaseClient に変更して衝突を回避
+let supabaseClient;
 
-        // --- 2. 認証機能 ---
-        async function handleSignUp() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signUp({ email, password });
-            if (error) alert(error.message); else alert("登録完了！そのままログインしてください。");
-        }
+// 2. 初期化を確実に行う
+try {
+    const SUPABASE_URL = 'あなたのURL';
+    const SUPABASE_KEY = 'あなたのANON_KEY';
+    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+    console.log("Supabase initialized successfully");
+} catch (e) {
+    console.error("Initialization error:", e);
+}
 
-        async function handleLogin() {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message);
-        }
+// --- 認証機能 (グローバルに関数を定義) ---
+window.handleSignUp = async function() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const { error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) alert("登録エラー: " + error.message); 
+    else alert("登録完了！そのままログインしてください。");
+};
 
-        async function handleLogout() {
-            await supabase.auth.signOut();
-        }
+window.handleLogin = async function() {
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) alert("ログインエラー: " + error.message);
+};
+
+window.handleLogout = async function() {
+    await supabaseClient.auth.signOut();
+};
+
+// --- 状態の監視 ---
+supabaseClient.auth.onAuthStateChange((event, session) => {
+    const authSection = document.getElementById('auth-section');
+    const mainSection = document.getElementById('main-section');
+    if (session) {
+        authSection.classList.add('hidden');
+        mainSection.classList.remove('hidden');
+        loadEntries();
+    } else {
+        authSection.classList.remove('hidden');
+        mainSection.classList.add('hidden');
+    }
+});
+
+// --- 日記機能 ---
+window.saveEntry = async function() {
+    const content = document.getElementById('content').value;
+    const { data: { user } } = await supabaseClient.auth.getUser();
+    
+    if (!user) return alert("ログインが必要です");
+
+    const { error } = await supabaseClient.from('entries').insert([{ 
+        content: content,
+        user_id: user.id 
+    }]);
+    
+    if (error) alert("保存エラー: " + error.message);
+    else {
+        document.getElementById('content').value = '';
+        loadEntries();
+    }
+};
+
+async function loadEntries() {
+    const { data, error } = await supabaseClient
+        .from('entries')
+        .select('*')
+        .order('created_at', { ascending: false });
+    
+    if (error) {
+        console.error("データ取得エラー:", error);
+        return;
+    }
+    const container = document.getElementById('entries');
+    container.innerHTML = data.map(e => `
+        <div class="entry">
+            ${e.content}<br>
+            <small>${new Date(e.created_at).toLocaleString()}</small>
+        </div>
+    `).join('');
+}
+
 
         // --- 3. 日記機能 ---
         async function saveEntry() {
