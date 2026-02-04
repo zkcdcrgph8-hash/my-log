@@ -14,7 +14,11 @@
         button:hover { background: #0056b3; }
         .secondary-btn { background: #28a745; }
         .logout-btn { background: #666; font-size: 12px; width: auto; float: right; padding: 5px 10px; }
-        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        /* 削除ボタンのスタイル */
+        .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; }
+        .del-btn:hover { color: #dc3545; background: none; }
+        .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
     </style>
 </head>
 <body>
@@ -34,21 +38,20 @@
             <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
             <button id="btn-save">日記を保存する</button>
         </div>
+
+        <input type="text" id="search" class="search-box" placeholder="🔍 日記を検索..." oninput="loadEntries()">
+        
         <div id="entries-container"></div>
     </div>
 
     <script>
-        // --- 設定 (必ず書き換えてください) ---
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
-        
-        // 変数名の重複を避けるため「mySupabase」として定義
         const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
 
-        // --- 1. 状態監視 (ログインしているかチェック) ---
         mySupabase.auth.onAuthStateChange((event, session) => {
             if (session) {
                 authSection.classList.add('hidden');
@@ -60,58 +63,62 @@
             }
         });
 
-        // --- 2. 認証機能 (ボタンクリック時の処理) ---
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const { error } = await mySupabase.auth.signUp({ email, password });
-            if (error) alert("登録エラー: " + error.message);
-            else alert("登録完了！ログインボタンを押してください。");
+            if (error) alert(error.message);
+            else alert("登録完了！ログインしてください。");
         };
 
         document.getElementById('btn-login').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const { error } = await mySupabase.auth.signInWithPassword({ email, password });
-            if (error) alert("ログインエラー: " + error.message);
+            if (error) alert(error.message);
         };
 
         document.getElementById('btn-logout').onclick = async () => {
             await mySupabase.auth.signOut();
         };
 
-        // --- 3. 日記機能 ---
         document.getElementById('btn-save').onclick = async () => {
             const content = document.getElementById('content').value;
             if (!content) return;
-
             const { data: { user } } = await mySupabase.auth.getUser();
-
-            const { error } = await mySupabase.from('entries').insert([
-                { content: content, user_id: user.id }
-            ]);
-
-            if (error) alert("保存エラー: " + error.message);
+            const { error } = await mySupabase.from('entries').insert([{ content, user_id: user.id }]);
+            if (error) alert(error.message);
             else {
                 document.getElementById('content').value = '';
                 loadEntries();
             }
         };
 
-        async function loadEntries() {
-            const { data, error } = await mySupabase
-                .from('entries')
-                .select('*')
-                .order('created_at', { ascending: false });
+        // 削除機能の追加
+        window.deleteEntry = async (id) => {
+            if (!confirm("この日記を削除しますか？")) return;
+            const { error } = await mySupabase.from('entries').delete().eq('id', id);
+            if (error) alert(error.message);
+            else loadEntries();
+        };
 
-            if (error) {
-                console.error(error);
-                return;
+        // 検索機能を含めた読み込み
+        async function loadEntries() {
+            const searchTerm = document.getElementById('search').value;
+            let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
+
+            // 検索語がある場合、content列から絞り込み
+            if (searchTerm) {
+                query = query.ilike('content', `%${searchTerm}%`);
             }
+
+            const { data, error } = await query;
+            if (error) return console.error(error);
 
             const container = document.getElementById('entries-container');
             container.innerHTML = data.map(e => `
                 <div class="entry">
+                    <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
                     ${e.content.replace(/\n/g, '<br>')}
                     <br><small>${new Date(e.created_at).toLocaleString('ja-JP')}</small>
                 </div>
