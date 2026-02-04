@@ -6,159 +6,127 @@
     <title>私だけの秘密日記</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
-        /* おとめ座のセンスで整えるシンプルなデザイン */
-        body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; }
-        .hidden { display: none; }
+        body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; color: #333; }
+        .hidden { display: none !important; }
         .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        input, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
-        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; }
+        input, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
         button:hover { background: #0056b3; }
-        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; }
-        .logout-btn { background: #666; font-size: 12px; width: auto; float: right; }
+        .secondary-btn { background: #28a745; }
+        .logout-btn { background: #666; font-size: 12px; width: auto; float: right; padding: 5px 10px; }
+        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        small { color: #888; }
     </style>
 </head>
 <body>
 
     <div id="auth-section" class="card">
-        <h2>ログイン / 新規登録</h2>
+        <h2 style="text-align:center;">秘密の日記帳</h2>
+        <p style="font-size: 14px; color: #666;">メールとパスワードでログインしてください</p>
         <input type="email" id="email" placeholder="メールアドレス">
         <input type="password" id="password" placeholder="パスワード">
-        <button onclick="handleSignUp()">新規登録</button>
-        <button onclick="handleLogin()" style="background:#28a745;">ログイン</button>
+        <button id="btn-login" class="secondary-btn">ログイン</button>
+        <button id="btn-signup">新規登録</button>
     </div>
 
     <div id="main-section" class="hidden">
-        <button class="logout-btn" onclick="handleLogout()">ログアウト</button>
+        <button id="btn-logout" class="logout-btn">ログアウト</button>
         <h2>今日の日記</h2>
         <div class="card">
-            <textarea id="content" placeholder="何があった？" rows="3"></textarea>
-            <button onclick="saveEntry()">保存する</button>
+            <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
+            <button id="btn-save">日記を保存する</button>
         </div>
-        <div id="entries"></div>
+        <div id="entries-container"></div>
     </div>
 
     <script>
-        // --- 設定 ---
+        // --- 設定（ここを自分のものに書き換えてください） ---
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+        
+        // Supabaseクライアントの初期化
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+        // 要素の取得
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const contentInput = document.getElementById('content');
+        const entriesContainer = document.getElementById('entries-container');
 
-// 1. 変数名を supabaseClient に変更して衝突を回避
-let supabaseClient;
+        // --- ログイン状態の監視 ---
+        _supabase.auth.onAuthStateChange((event, session) => {
+            console.log("Auth Event:", event);
+            if (session) {
+                authSection.classList.add('hidden');
+                mainSection.classList.remove('hidden');
+                loadEntries();
+            } else {
+                authSection.classList.remove('hidden');
+                mainSection.classList.add('hidden');
+                entriesContainer.innerHTML = '';
+            }
+        });
 
-// 2. 初期化を確実に行う
-try {
-    const SUPABASE_URL = 'あなたのURL';
-    const SUPABASE_KEY = 'あなたのANON_KEY';
-    supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    console.log("Supabase initialized successfully");
-} catch (e) {
-    console.error("Initialization error:", e);
-}
+        // --- 認証イベント ---
+        document.getElementById('btn-signup').onclick = async () => {
+            const { error } = await _supabase.auth.signUp({
+                email: emailInput.value,
+                password: passwordInput.value
+            });
+            if (error) alert("登録エラー: " + error.message);
+            else alert("登録完了！そのままログインボタンを押してください。");
+        };
 
-// --- 認証機能 (グローバルに関数を定義) ---
-window.handleSignUp = async function() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const { error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) alert("登録エラー: " + error.message); 
-    else alert("登録完了！そのままログインしてください。");
-};
+        document.getElementById('btn-login').onclick = async () => {
+            const { error } = await _supabase.auth.signInWithPassword({
+                email: emailInput.value,
+                password: passwordInput.value
+            });
+            if (error) alert("ログインエラー: " + error.message);
+        };
 
-window.handleLogin = async function() {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) alert("ログインエラー: " + error.message);
-};
+        document.getElementById('btn-logout').onclick = async () => {
+            await _supabase.auth.signOut();
+        };
 
-window.handleLogout = async function() {
-    await supabaseClient.auth.signOut();
-};
+        // --- 日記操作 ---
+        document.getElementById('btn-save').onclick = async () => {
+            const content = contentInput.value;
+            if (!content) return;
 
-// --- 状態の監視 ---
-supabaseClient.auth.onAuthStateChange((event, session) => {
-    const authSection = document.getElementById('auth-section');
-    const mainSection = document.getElementById('main-section');
-    if (session) {
-        authSection.classList.add('hidden');
-        mainSection.classList.remove('hidden');
-        loadEntries();
-    } else {
-        authSection.classList.remove('hidden');
-        mainSection.classList.add('hidden');
-    }
-});
+            const { data: { user } } = await _supabase.auth.getUser();
 
-// --- 日記機能 ---
-window.saveEntry = async function() {
-    const content = document.getElementById('content').value;
-    const { data: { user } } = await supabaseClient.auth.getUser();
-    
-    if (!user) return alert("ログインが必要です");
+            const { error } = await _supabase.from('entries').insert([
+                { content: content, user_id: user.id }
+            ]);
 
-    const { error } = await supabaseClient.from('entries').insert([{ 
-        content: content,
-        user_id: user.id 
-    }]);
-    
-    if (error) alert("保存エラー: " + error.message);
-    else {
-        document.getElementById('content').value = '';
-        loadEntries();
-    }
-};
-
-async function loadEntries() {
-    const { data, error } = await supabaseClient
-        .from('entries')
-        .select('*')
-        .order('created_at', { ascending: false });
-    
-    if (error) {
-        console.error("データ取得エラー:", error);
-        return;
-    }
-    const container = document.getElementById('entries');
-    container.innerHTML = data.map(e => `
-        <div class="entry">
-            ${e.content}<br>
-            <small>${new Date(e.created_at).toLocaleString()}</small>
-        </div>
-    `).join('');
-}
-
-
-        // --- 3. 日記機能 ---
-        async function saveEntry() {
-            const content = document.getElementById('content').value;
-            // ログイン中のユーザー情報を取得
-            const { data: { user } } = await supabase.auth.getUser();
-            
-            const { error } = await supabase.from('entries').insert([{ 
-                content: content,
-                user_id: user.id  // ここで自分のIDを刻印する
-            }]);
-            
-            if (error) alert(error.message);
-            else {
-                document.getElementById('content').value = '';
+            if (error) {
+                alert("保存に失敗しました: " + error.message);
+            } else {
+                contentInput.value = '';
                 loadEntries();
             }
-        }
+        };
 
         async function loadEntries() {
-            const { data, error } = await supabase
+            const { data, error } = await _supabase
                 .from('entries')
                 .select('*')
                 .order('created_at', { ascending: false });
-            
-            if (error) console.error(error);
-            const container = document.getElementById('entries');
-            container.innerHTML = data.map(e => `<div class="entry">${e.content}<br><small>${new Date(e.created_at).toLocaleString()}</small></div>`).join('');
+
+            if (error) {
+                console.error("データ取得エラー:", error);
+                return;
+            }
+
+            entriesContainer.innerHTML = data.map(e => `
+                <div class="entry">
+                    <div>${e.content.replace(/\n/g, '<br>')}</div>
+                    <small>${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+                </div>
+            `).join('');
         }
     </script>
 </body>
