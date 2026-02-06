@@ -60,6 +60,16 @@
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
         const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// --- URLからトークンを強制的に取得するおまじない ---
+// ページが読み込まれた瞬間に、URLに鍵(#access_token)があれば、それをセッションとしてセットします
+if (window.location.hash && window.location.hash.includes('access_token')) {
+    mySupabase.auth.setSession({
+        access_token: new URLSearchParams(window.location.hash.substring(1)).get('access_token'),
+        refresh_token: new URLSearchParams(window.location.hash.substring(1)).get('refresh_token')
+    }).then(() => console.log("Session manually set from URL!"));
+}
+
+
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
 
