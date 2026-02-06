@@ -63,25 +63,29 @@
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
 
+                // --- 状態監視 (ここを書き換え) ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
-    const resetSection = document.getElementById('reset-password-section');
-    
-    if (event === "PASSWORD_RECOVERY") {
-        // パスワードリセットメールから戻ってきた時の特別なイベント
-        authSection.classList.add('hidden');
-        mainSection.classList.add('hidden');
-        resetSection.classList.remove('hidden');
-    } else if (session) {
-        authSection.classList.add('hidden');
-        mainSection.classList.remove('hidden');
-        resetSection.classList.add('hidden'); // 念のため隠す
-        loadEntries();
-    } else {
-        authSection.classList.remove('hidden');
-        mainSection.classList.add('hidden');
-        resetSection.classList.add('hidden');
-    }
-});
+            const resetSection = document.getElementById('reset-password-section');
+            
+            // URLに「type=recovery」が含まれているか、またはイベントが recovery の場合
+            const isRecovery = event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery");
+
+            if (isRecovery) {
+                authSection.classList.add('hidden');
+                mainSection.classList.add('hidden');
+                resetSection.classList.remove('hidden');
+            } else if (session) {
+                authSection.classList.add('hidden');
+                mainSection.classList.remove('hidden');
+                resetSection.classList.add('hidden');
+                loadEntries();
+            } else {
+                authSection.classList.remove('hidden');
+                mainSection.classList.add('hidden');
+                resetSection.classList.add('hidden');
+            }
+        });
+
 
 // 新しいパスワードを保存するボタンの処理
 document.getElementById('btn-update-password').onclick = async () => {
