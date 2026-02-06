@@ -98,7 +98,25 @@
 
 
 // 新しいパスワードを保存するボタンの処理
-https://zkcdcrgph8-hash.github.io/my-log/
+        // パスワード更新処理（より確実に！）
+        document.getElementById('btn-update-password').onclick = async () => {
+            const newPassword = document.getElementById('new-password').value;
+            if (!newPassword) return alert("新しいパスワードを入力してください");
+
+            // updateUserを実行すると、Supabaseは現在のURLにあるトークンを自動で使ってくれます。
+            const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+
+            if (error) {
+                // ここでエラーが出る場合は、トークンが古いか、既に使われた後です
+                alert("更新エラー: " + error.message + "\nもう一度メール送信からやり直してください。");
+            } else {
+                alert("パスワードを更新しました！");
+                // 完全にクリーンな状態にするためにサインアウトしてトップへ
+                await mySupabase.auth.signOut();
+                window.location.href = window.location.origin + window.location.pathname; 
+            }
+        };
+
 
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
