@@ -48,6 +48,13 @@
         <div id="entries-container"></div>
     </div>
 
+	<div id="reset-password-section" class="hidden card">
+	    <h3>新しいパスワードを設定</h3>
+	    <input type="password" id="new-password" placeholder="新しいパスワード">
+	    <button id="btn-update-password">パスワードを更新する</button>
+	</div>
+
+
     <script>
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
@@ -90,14 +97,6 @@ document.getElementById('btn-update-password').onclick = async () => {
         location.reload(); 
     }
 };
-
-
-	<div id="reset-password-section" class="hidden card">
-	    <h3>新しいパスワードを設定</h3>
-	    <input type="password" id="new-password" placeholder="新しいパスワード">
-	    <button id="btn-update-password">パスワードを更新する</button>
-	</div>
-
 
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
