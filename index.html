@@ -88,19 +88,30 @@
 
 
 // 新しいパスワードを保存するボタンの処理
+// パスワード更新処理（強化版）
 document.getElementById('btn-update-password').onclick = async () => {
     const newPassword = document.getElementById('new-password').value;
-    const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+    if (!newPassword) return alert("パスワードを入力してください");
 
+    // セッションがあるか再確認してから更新
+    const { data: { session } } = await mySupabase.auth.getSession();
+    
+    if (!session) {
+        alert("セッションが見つかりません。もう一度メールのリンクからやり直してください。");
+        return;
+    }
+
+    const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+    
     if (error) {
         alert("更新エラー: " + error.message);
     } else {
-        alert("パスワードを更新しました！新しいパスワードでログインしてください。");
-        // ログアウトさせて、通常のログイン画面に戻す
+        alert("更新完了！新しいパスワードでログインしてください。");
         await mySupabase.auth.signOut();
-        location.reload(); 
+        location.href = window.location.pathname; // URLを綺麗にしてリロード
     }
 };
+
 
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
