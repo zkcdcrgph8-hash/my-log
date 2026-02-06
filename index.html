@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My-Log</title>
+    <title>My-Log | 秘密の日記帳</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; color: #333; }
@@ -15,9 +15,8 @@
         .secondary-btn { background: #28a745; }
         .logout-btn { background: #666; font-size: 12px; width: auto; float: right; padding: 5px 10px; }
         .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
-        /* 削除ボタンのスタイル */
-        .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; }
-        .del-btn:hover { color: #dc3545; background: none; }
+        .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; cursor: pointer; }
+        .del-btn:hover { color: #dc3545; }
         .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
     </style>
 </head>
@@ -30,9 +29,14 @@
         <button id="btn-login" class="secondary-btn">ログイン</button>
         <button id="btn-signup">新規登録</button>
         <p style="text-align:center; font-size: 14px;">
-        <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
-</p>
+            <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
+        </p>
+    </div>
 
+    <div id="reset-password-section" class="hidden card">
+        <h3>新しいパスワードを設定</h3>
+        <input type="password" id="new-password" placeholder="新しいパスワード">
+        <button id="btn-update-password">パスワードを更新する</button>
     </div>
 
     <div id="main-section" class="hidden">
@@ -42,106 +46,100 @@
             <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
             <button id="btn-save">日記を保存する</button>
         </div>
-
         <input type="text" id="search" class="search-box" placeholder="🔍 日記を検索..." oninput="loadEntries()">
-        
         <div id="entries-container"></div>
     </div>
 
-	<div id="reset-password-section" class="hidden card">
-	    <h3>新しいパスワードを設定</h3>
-	    <input type="password" id="new-password" placeholder="新しいパスワード">
-	    <button id="btn-update-password">パスワードを更新する</button>
-	</div>
-
-
     <script>
+        // --- A. 初期化とURL設定 ---
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
         const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- URLからトークンを強制的に取得するおまじない ---
-// ページが読み込まれた瞬間に、URLに鍵(#access_token)があれば、それをセッションとしてセットします
-if (window.location.hash && window.location.hash.includes('access_token')) {
-    mySupabase.auth.setSession({
-        access_token: new URLSearchParams(window.location.hash.substring(1)).get('access_token'),
-        refresh_token: new URLSearchParams(window.location.hash.substring(1)).get('refresh_token')
-    }).then(() => console.log("Session manually set from URL!"));
-}
-
-
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
+        const resetSection = document.getElementById('reset-password-section');
 
-        // --- 状態監視 (クリーンアップ機能付き) ---
+        // --- B. 【最強版】URLトークンの強制解析おまじない ---
+        // ページが読み込まれた瞬間に実行し、URLにある鍵をSupabaseに叩き込む
+        const hash = window.location.hash.substring(1);
+        if (hash && hash.includes('access_token')) {
+            const params = new URLSearchParams(hash);
+            const accessToken = params.get('access_token');
+            const refreshToken = params.get('refresh_token');
+
+            if (accessToken) {
+                mySupabase.auth.setSession({
+                    access_token: accessToken,
+                    refresh_token: refreshToken
+                }).then(({ error }) => {
+                    if (!error) console.log("Session manually set from URL!");
+                });
+            }
+        }
+
+        // --- C. 状態監視 (画面の切り替え) ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
-            const resetSection = document.getElementById('reset-password-section');
-            
-            // 1. パスワードリカバリーの合図を検知
             const isRecovery = event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery");
 
             if (isRecovery) {
-                // 【ここがポイント！】古いセッションが邪魔しないよう、内部的にクリーンアップ
-                // ただし、完全に signOut してしまうとリセット権限まで消える場合があるため、
-                // ここでは「画面表示の切り替え」を最優先し、古いキャッシュを無視する動きをさせます。
-                
                 authSection.classList.add('hidden');
                 mainSection.classList.add('hidden');
                 resetSection.classList.remove('hidden');
-
-                // コンソールにログを出しておくと、おとめ座のあなたは安心できるはず！
-                console.log("Recovery mode detected. UI switched to reset password.");
-                
+                console.log("Recovery Mode Active");
             } else if (session) {
-                // 通常のログイン状態
                 authSection.classList.add('hidden');
                 mainSection.classList.remove('hidden');
                 resetSection.classList.add('hidden');
                 loadEntries();
             } else {
-                // 未ログイン状態
                 authSection.classList.remove('hidden');
                 mainSection.classList.add('hidden');
                 resetSection.classList.add('hidden');
             }
         });
 
+        // --- D. パスワード更新ボタン (ここを独立して配置) ---
+        document.getElementById('btn-update-password').onclick = async () => {
+            const newPassword = document.getElementById('new-password').value;
+            if (!newPassword) return alert("新しいパスワードを入力してください");
 
-// 新しいパスワードを保存するボタンの処理
-document.getElementById('btn-update-password').onclick = async () => {
-    const newPassword = document.getElementById('new-password').value;
-    if (!newPassword) return alert("新しいパスワードを入力してください");
+            // 最新のセッション状態を確認
+            const { data: { session } } = await mySupabase.auth.getSession();
+            if (!session) {
+                alert("セッションがありません。最新のメールから再度リンクを開いてください。");
+                return;
+            }
 
-    // --- ここが重要！ ---
-    // URLの#以降にあるトークンを強制的にセッションとして確立させる
-    const { data: { session }, error: sessionError } = await mySupabase.auth.getSession();
+            const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+            if (error) {
+                alert("更新エラー: " + error.message);
+            } else {
+                alert("パスワードを更新しました！");
+                await mySupabase.auth.signOut();
+                // 確実に初期状態に戻す
+                window.location.href = window.location.origin + window.location.pathname;
+            }
+        };
 
-    if (sessionError || !session) {
-        console.error("Session Error:", sessionError);
-        alert("セッションが確立できませんでした。メールのリンクの有効期限が切れているか、URLが正しくありません。もう一度メール送信からやり直してください。");
-        return;
-    }
-
-    // セッションが確認できたら更新を実行
-    const { error } = await mySupabase.auth.updateUser({ password: newPassword });
-
-    if (error) {
-        alert("更新エラー: " + error.message);
-    } else {
-        alert("パスワードを更新しました！");
-        await mySupabase.auth.signOut();
-        // URLの#以降（トークン）を消して、綺麗な状態でトップへ戻る
-        window.location.href = window.location.origin + window.location.pathname;
-    }
-};
-
+        // --- E. その他の認証・日記機能 ---
+        document.getElementById('link-reset').onclick = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('email').value;
+            if (!email) return alert("メールアドレスを入力してください");
+            const { error } = await mySupabase.auth.resetPasswordForEmail(email, {
+                redirectTo: window.location.href,
+            });
+            if (error) alert(error.message);
+            else alert("再設定メールを送信しました！");
+        };
 
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const { error } = await mySupabase.auth.signUp({ email, password });
             if (error) alert(error.message);
-            else alert("登録完了！ログインしてください。");
+            else alert("登録完了！");
         };
 
         document.getElementById('btn-login').onclick = async () => {
@@ -161,55 +159,22 @@ document.getElementById('btn-update-password').onclick = async () => {
             const { data: { user } } = await mySupabase.auth.getUser();
             const { error } = await mySupabase.from('entries').insert([{ content, user_id: user.id }]);
             if (error) alert(error.message);
-            else {
-                document.getElementById('content').value = '';
-                loadEntries();
-            }
+            else { document.getElementById('content').value = ''; loadEntries(); }
         };
-	// パスワードリセットメールの送信
-	document.getElementById('link-reset').onclick = async (e) => {
-	    e.preventDefault(); // ページ遷移を防止
-	    const email = document.getElementById('email').value;
-	
-	    if (!email) {
-	        alert("メールアドレスを入力してからクリックしてください。");
-	        return;
-	    }
 
-	    const { error } = await mySupabase.auth.resetPasswordForEmail(email, {
-	        // パスワード再設定画面のURL（あなたのGitHub PagesのURL）
-	        redirectTo: window.location.href, 
-	    });
-	
-	    if (error) {
-	        alert("エラー: " + error.message);
-	    } else {
-	        alert("パスワード再設定用のメールを送信しました。メールボックスを確認してください。");
-	    }
-	};
-
-
-        // 削除機能の追加
         window.deleteEntry = async (id) => {
-            if (!confirm("この日記を削除しますか？")) return;
+            if (!confirm("削除しますか？")) return;
             const { error } = await mySupabase.from('entries').delete().eq('id', id);
             if (error) alert(error.message);
             else loadEntries();
         };
 
-        // 検索機能を含めた読み込み
         async function loadEntries() {
             const searchTerm = document.getElementById('search').value;
             let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
-
-            // 検索語がある場合、content列から絞り込み
-            if (searchTerm) {
-                query = query.ilike('content', `%${searchTerm}%`);
-            }
-
+            if (searchTerm) query = query.ilike('content', `%${searchTerm}%`);
             const { data, error } = await query;
-            if (error) return console.error(error);
-
+            if (error) return;
             const container = document.getElementById('entries-container');
             container.innerHTML = data.map(e => `
                 <div class="entry">
