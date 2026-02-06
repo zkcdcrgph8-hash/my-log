@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>私だけの秘密日記</title>
+    <title>My-Log</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; color: #333; }
@@ -29,6 +29,10 @@
         <input type="password" id="password" placeholder="パスワード">
         <button id="btn-login" class="secondary-btn">ログイン</button>
         <button id="btn-signup">新規登録</button>
+        <p style="text-align:center; font-size: 14px;">
+        <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
+</p>
+
     </div>
 
     <div id="main-section" class="hidden">
@@ -52,16 +56,48 @@
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
 
-        mySupabase.auth.onAuthStateChange((event, session) => {
-            if (session) {
-                authSection.classList.add('hidden');
-                mainSection.classList.remove('hidden');
-                loadEntries();
-            } else {
-                authSection.classList.remove('hidden');
-                mainSection.classList.add('hidden');
-            }
-        });
+        mySupabase.auth.onAuthStateChange(async (event, session) => {
+    const resetSection = document.getElementById('reset-password-section');
+    
+    if (event === "PASSWORD_RECOVERY") {
+        // パスワードリセットメールから戻ってきた時の特別なイベント
+        authSection.classList.add('hidden');
+        mainSection.classList.add('hidden');
+        resetSection.classList.remove('hidden');
+    } else if (session) {
+        authSection.classList.add('hidden');
+        mainSection.classList.remove('hidden');
+        resetSection.classList.add('hidden'); // 念のため隠す
+        loadEntries();
+    } else {
+        authSection.classList.remove('hidden');
+        mainSection.classList.add('hidden');
+        resetSection.classList.add('hidden');
+    }
+});
+
+// 新しいパスワードを保存するボタンの処理
+document.getElementById('btn-update-password').onclick = async () => {
+    const newPassword = document.getElementById('new-password').value;
+    const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+        alert("更新エラー: " + error.message);
+    } else {
+        alert("パスワードを更新しました！新しいパスワードでログインしてください。");
+        // ログアウトさせて、通常のログイン画面に戻す
+        await mySupabase.auth.signOut();
+        location.reload(); 
+    }
+};
+
+
+	<div id="reset-password-section" class="hidden card">
+	    <h3>新しいパスワードを設定</h3>
+	    <input type="password" id="new-password" placeholder="新しいパスワード">
+	    <button id="btn-update-password">パスワードを更新する</button>
+	</div>
+
 
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
@@ -93,6 +129,28 @@
                 loadEntries();
             }
         };
+	// パスワードリセットメールの送信
+	document.getElementById('link-reset').onclick = async (e) => {
+	    e.preventDefault(); // ページ遷移を防止
+	    const email = document.getElementById('email').value;
+	
+	    if (!email) {
+	        alert("メールアドレスを入力してからクリックしてください。");
+	        return;
+	    }
+
+	    const { error } = await mySupabase.auth.resetPasswordForEmail(email, {
+	        // パスワード再設定画面のURL（あなたのGitHub PagesのURL）
+	        redirectTo: window.location.href, 
+	    });
+	
+	    if (error) {
+	        alert("エラー: " + error.message);
+	    } else {
+	        alert("パスワード再設定用のメールを送信しました。メールボックスを確認してください。");
+	    }
+	};
+
 
         // 削除機能の追加
         window.deleteEntry = async (id) => {
