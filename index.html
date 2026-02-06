@@ -98,24 +98,32 @@
 
 
 // 新しいパスワードを保存するボタンの処理
-        // パスワード更新処理（より確実に！）
-        document.getElementById('btn-update-password').onclick = async () => {
-            const newPassword = document.getElementById('new-password').value;
-            if (!newPassword) return alert("新しいパスワードを入力してください");
+document.getElementById('btn-update-password').onclick = async () => {
+    const newPassword = document.getElementById('new-password').value;
+    if (!newPassword) return alert("新しいパスワードを入力してください");
 
-            // updateUserを実行すると、Supabaseは現在のURLにあるトークンを自動で使ってくれます。
-            const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+    // --- ここが重要！ ---
+    // URLの#以降にあるトークンを強制的にセッションとして確立させる
+    const { data: { session }, error: sessionError } = await mySupabase.auth.getSession();
 
-            if (error) {
-                // ここでエラーが出る場合は、トークンが古いか、既に使われた後です
-                alert("更新エラー: " + error.message + "\nもう一度メール送信からやり直してください。");
-            } else {
-                alert("パスワードを更新しました！");
-                // 完全にクリーンな状態にするためにサインアウトしてトップへ
-                await mySupabase.auth.signOut();
-                window.location.href = window.location.origin + window.location.pathname; 
-            }
-        };
+    if (sessionError || !session) {
+        console.error("Session Error:", sessionError);
+        alert("セッションが確立できませんでした。メールのリンクの有効期限が切れているか、URLが正しくありません。もう一度メール送信からやり直してください。");
+        return;
+    }
+
+    // セッションが確認できたら更新を実行
+    const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+
+    if (error) {
+        alert("更新エラー: " + error.message);
+    } else {
+        alert("パスワードを更新しました！");
+        await mySupabase.auth.signOut();
+        // URLの#以降（トークン）を消して、綺麗な状態でトップへ戻る
+        window.location.href = window.location.origin + window.location.pathname;
+    }
+};
 
 
         document.getElementById('btn-signup').onclick = async () => {
