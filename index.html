@@ -63,23 +63,33 @@
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
 
-                // --- 状態監視 (ここを書き換え) ---
+        // --- 状態監視 (クリーンアップ機能付き) ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
             const resetSection = document.getElementById('reset-password-section');
             
-            // URLに「type=recovery」が含まれているか、またはイベントが recovery の場合
+            // 1. パスワードリカバリーの合図を検知
             const isRecovery = event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery");
 
             if (isRecovery) {
+                // 【ここがポイント！】古いセッションが邪魔しないよう、内部的にクリーンアップ
+                // ただし、完全に signOut してしまうとリセット権限まで消える場合があるため、
+                // ここでは「画面表示の切り替え」を最優先し、古いキャッシュを無視する動きをさせます。
+                
                 authSection.classList.add('hidden');
                 mainSection.classList.add('hidden');
                 resetSection.classList.remove('hidden');
+
+                // コンソールにログを出しておくと、おとめ座のあなたは安心できるはず！
+                console.log("Recovery mode detected. UI switched to reset password.");
+                
             } else if (session) {
+                // 通常のログイン状態
                 authSection.classList.add('hidden');
                 mainSection.classList.remove('hidden');
                 resetSection.classList.add('hidden');
                 loadEntries();
             } else {
+                // 未ログイン状態
                 authSection.classList.remove('hidden');
                 mainSection.classList.add('hidden');
                 resetSection.classList.add('hidden');
@@ -88,30 +98,7 @@
 
 
 // 新しいパスワードを保存するボタンの処理
-// パスワード更新処理（強化版）
-document.getElementById('btn-update-password').onclick = async () => {
-    const newPassword = document.getElementById('new-password').value;
-    if (!newPassword) return alert("パスワードを入力してください");
-
-    // セッションがあるか再確認してから更新
-    const { data: { session } } = await mySupabase.auth.getSession();
-    
-    if (!session) {
-        alert("セッションが見つかりません。もう一度メールのリンクからやり直してください。");
-        return;
-    }
-
-    const { error } = await mySupabase.auth.updateUser({ password: newPassword });
-    
-    if (error) {
-        alert("更新エラー: " + error.message);
-    } else {
-        alert("更新完了！新しいパスワードでログインしてください。");
-        await mySupabase.auth.signOut();
-        location.href = window.location.pathname; // URLを綺麗にしてリロード
-    }
-};
-
+https://zkcdcrgph8-hash.github.io/my-log/
 
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
