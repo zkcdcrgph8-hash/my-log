@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>パスワード再設定</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <style>
+        body { font-family: sans-serif; max-width: 400px; margin: 50px auto; padding: 20px; background: #f0f2f5; }
+        .card { background: white; padding: 25px; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); }
+        input, button { width: 100%; padding: 12px; margin: 10px 0; border-radius: 6px; border: 1px solid #ddd; box-sizing: border-box; }
+        button { background: #007bff; color: white; border: none; font-weight: bold; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <h3>新しいパスワードを設定</h3>
+        <p style="font-size: 13px; color: #666;">新しいパスワードを入力して更新ボタンを押してください。</p>
+        <input type="password" id="new-password" placeholder="8文字以上の新パスワード">
+        <button id="btn-update">パスワードを更新する</button>
+    </div>
+
+    <script>
+        const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
+        const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
+        const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        // ページが開いた瞬間、URLのトークンを強制的にセッションへ入れる
+        window.onload = async () => {
+            const hash = window.location.hash.substring(1);
+            if (hash) {
+                const params = new URLSearchParams(hash);
+                const accessToken = params.get('access_token');
+                if (accessToken) {
+                    await mySupabase.auth.setSession({
+                        access_token: accessToken,
+                        refresh_token: params.get('refresh_token')
+                    });
+                    console.log("セッション確立成功！");
+                }
+            }
+        };
+
+        document.getElementById('btn-update').onclick = async () => {
+            const newPassword = document.getElementById('new-password').value;
+            if (!newPassword) return alert("パスワードを入力してください");
+
+            const { error } = await mySupabase.auth.updateUser({ password: newPassword });
+            if (error) {
+                alert("エラー: " + error.message);
+            } else {
+                alert("更新完了！ログイン画面に戻ります。");
+                // 成功したら index.html に戻す
+                window.location.href = 'index.html'; 
+            }
+        };
+    </script>
+</body>
+</html>
