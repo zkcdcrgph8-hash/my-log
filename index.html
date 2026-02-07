@@ -33,12 +33,6 @@
         </p>
     </div>
 
-    <div id="reset-password-section" class="hidden card">
-        <h3>新しいパスワードを設定</h3>
-        <input type="password" id="new-password" placeholder="新しいパスワード">
-        <button id="btn-update-password">パスワードを更新する</button>
-    </div>
-
     <div id="main-section" class="hidden">
         <button id="btn-logout" class="logout-btn">ログアウト</button>
         <h2>今日の日記</h2>
@@ -51,89 +45,40 @@
     </div>
 
     <script>
-        // --- A. 初期化とURL設定 ---
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
         const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
-        const resetSection = document.getElementById('reset-password-section');
 
-        // --- B. 【最強版】URLトークンの強制解析おまじない ---
-        // ページが読み込まれた瞬間に実行し、URLにある鍵をSupabaseに叩き込む
-        const hash = window.location.hash.substring(1);
-        if (hash && hash.includes('access_token')) {
-            const params = new URLSearchParams(hash);
-            const accessToken = params.get('access_token');
-            const refreshToken = params.get('refresh_token');
-
-            if (accessToken) {
-                mySupabase.auth.setSession({
-                    access_token: accessToken,
-                    refresh_token: refreshToken
-                }).then(({ error }) => {
-                    if (!error) console.log("Session manually set from URL!");
-                });
-            }
-        }
-
-        // --- C. 状態監視 (画面の切り替え) ---
+        // --- 状態監視 (ログイン or ログアウト のみ！) ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
-            const isRecovery = event === "PASSWORD_RECOVERY" || window.location.hash.includes("type=recovery");
-
-            if (isRecovery) {
-                authSection.classList.add('hidden');
-                mainSection.classList.add('hidden');
-                resetSection.classList.remove('hidden');
-                console.log("Recovery Mode Active");
-            } else if (session) {
+            if (session) {
                 authSection.classList.add('hidden');
                 mainSection.classList.remove('hidden');
-                resetSection.classList.add('hidden');
                 loadEntries();
             } else {
                 authSection.classList.remove('hidden');
                 mainSection.classList.add('hidden');
-                resetSection.classList.add('hidden');
             }
         });
 
-        // --- D. パスワード更新ボタン (ここを独立して配置) ---
-        document.getElementById('btn-update-password').onclick = async () => {
-            const newPassword = document.getElementById('new-password').value;
-            if (!newPassword) return alert("新しいパスワードを入力してください");
-
-            // 最新のセッション状態を確認
-            const { data: { session } } = await mySupabase.auth.getSession();
-            if (!session) {
-                alert("セッションがありません。最新のメールから再度リンクを開いてください。");
-                return;
-            }
-
-            const { error } = await mySupabase.auth.updateUser({ password: newPassword });
-            if (error) {
-                alert("更新エラー: " + error.message);
-            } else {
-                alert("パスワードを更新しました！");
-                await mySupabase.auth.signOut();
-                // 確実に初期状態に戻す
-                window.location.href = window.location.origin + window.location.pathname;
-            }
-        };
-
-        // --- E. その他の認証・日記機能 ---
+        // --- パスワードリセットメール送信 ---
         document.getElementById('link-reset').onclick = async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             if (!email) return alert("メールアドレスを入力してください");
+
             const { error } = await mySupabase.auth.resetPasswordForEmail(email, {
-                redirectTo: window.location.href,
+                redirectTo: 'https://zkcdcrgph8-hash.github.io/my-log/reset.html',
             });
+
             if (error) alert(error.message);
             else alert("再設定メールを送信しました！");
         };
 
+        // --- 以下、ログイン・登録・保存・削除のコード（変更なし） ---
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
