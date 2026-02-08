@@ -23,7 +23,7 @@
 <body>
 
     <div id="auth-section" class="card">
-        <h2 style="text-align:center;">秘密の日記帳</h2>
+        <h2 style="text-align:center;">My-Log-DB</h2>
         <input type="email" id="email" placeholder="メールアドレス">
         <input type="password" id="password" placeholder="パスワード">
         <button id="btn-login" class="secondary-btn">ログイン</button>
@@ -37,28 +37,21 @@
         <button id="btn-logout" class="logout-btn">ログアウト</button>
         <h2>My-Log</h2>
         <div class="card">
-
-    <div id="stamp-selector" style="margin-bottom: 15px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 10px; border-radius: 8px;">
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️" checked> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="💤"> 💤<br><span style="font-size:10px; color:#666;">睡眠</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="👀"> 👀<br><span style="font-size:10px; color:#666;">目覚</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="☀️"> ☀️<br><span style="font-size:10px; color:#666;">起床</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🛁"> 🛁<br><span style="font-size:10px; color:#666;">入浴</span></label>
-    </div>
+            <div id="stamp-selector" style="margin-bottom: 15px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+                <label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️" checked> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
+                <label style="cursor:pointer;"><input type="radio" name="stamp" value="💤"> 💤<br><span style="font-size:10px; color:#666;">睡眠</span></label>
+                <label style="cursor:pointer;"><input type="radio" name="stamp" value="👀"> 👀<br><span style="font-size:10px; color:#666;">目覚</span></label>
+                <label style="cursor:pointer;"><input type="radio" name="stamp" value="☀️"> ☀️<br><span style="font-size:10px; color:#666;">起床</span></label>
+                <label style="cursor:pointer;"><input type="radio" name="stamp" value="🛁"> 🛁<br><span style="font-size:10px; color:#666;">入浴</span></label>
+            </div>
 
             <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
             <button id="btn-save">記録する</button>
         </div>
+        
         <input type="text" id="search" class="search-box" placeholder="🔍 日記を検索..." oninput="loadEntries()">
         <div id="entries-container"></div>
     </div>
-
-<div class="card">
-    
-    <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
-    <button id="btn-save">日記を保存する</button>
-</div>
-
 
     <script>
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
