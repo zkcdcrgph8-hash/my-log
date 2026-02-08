@@ -54,8 +54,12 @@
             <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
         </div>
 
-        <input type="text" id="search" class="search-box" style="width: 100%; box-sizing: border-box; margin: 20px 0;" placeholder="🔍 日記を検索..." oninput="loadEntries()">
-        
+	<div style="display: flex; gap: 10px; margin-bottom: 20px;">
+	    <input type="text" id="search" class="search-box" style="flex: 2; margin: 0;" placeholder="🔍 キーワード・絵文字で検索..." oninput="loadEntries()">
+	    <input type="date" id="date-search" class="search-box" style="flex: 1; margin: 0; padding: 10px;" onchange="loadEntries()">
+	    <button onclick="clearSearch()" style="width: auto; margin: 0; background: #666; padding: 0 15px;">リセット</button>
+	</div>
+
         <div id="stats-panel" style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; display: flex; justify-content: space-around; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
             <div>🍽️ <span id="count-meal">0</span></div>
             <div>☀️ <span id="count-active">0</span></div>
@@ -157,15 +161,33 @@
         };
 
         // --- 一覧表示と統計 (修正済) ---
-        async function loadEntries() {
-            const searchTerm = document.getElementById('search').value;
-            let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
+async function loadEntries() {
+    const searchTerm = document.getElementById('search').value;
+    const dateTerm = document.getElementById('date-search').value; // カレンダーの値(YYYY-MM-DD)
+    
+    let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
 
-            if (searchTerm) {
-                query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
-            }
+    // 1. キーワード検索がある場合
+    if (searchTerm) {
+        query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
+    }
 
-            const { data, error } = await query;
+    // 2. 日付検索がある場合（作成日時 'created_at' でフィルタリング）
+    if (dateTerm) {
+        // 選んだ日の 00:00:00 から 23:59:59 までを対象にする
+        query = query.gte('created_at', `${dateTerm}T00:00:00`)
+                     .lte('created_at', `${dateTerm}T23:59:59`);
+    }
+
+    const { data, error } = await query;
+}
+
+// リセットボタンの処理
+function clearSearch() {
+    document.getElementById('search').value = '';
+    document.getElementById('date-search').value = '';
+    loadEntries();
+}
             if (error) return console.error(error);
 
             // --- 統計処理 ---
