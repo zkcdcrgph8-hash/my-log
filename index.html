@@ -38,7 +38,7 @@
         <h2>My-Log</h2>
         <div class="card">
             <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
-            <button id="btn-save">日記を保存する</button>
+            <button id="btn-save">記録する</button>
         </div>
         <input type="text" id="search" class="search-box" placeholder="🔍 日記を検索..." oninput="loadEntries()">
         <div id="entries-container"></div>
@@ -54,9 +54,6 @@
 
         // --- 状態監視 (ログイン or ログアウト のみ！) ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
-		// sessionがあるときの処理の中に
-		document.querySelector('h2').innerText = session.user.email + " の日記";
-
             if (session) {
                 authSection.classList.add('hidden');
                 mainSection.classList.remove('hidden');
