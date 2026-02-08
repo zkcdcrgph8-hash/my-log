@@ -185,10 +185,10 @@ async function loadEntries() {
         query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
     }
 
-    // 2. 日付検索
+    // 2. 日付検索（日本時間の 00:00:00+09:00 から 23:59:59+09:00 まで）
     if (dateTerm) {
-        query = query.gte('created_at', `${dateTerm}T00:00:00`)
-                     .lte('created_at', `${dateTerm}T23:59:59`);
+        query = query.gte('created_at', `${dateTerm}T00:00:00+09:00`)
+                     .lte('created_at', `${dateTerm}T23:59:59+09:00`);
     }
 
     const { data, error } = await query;
