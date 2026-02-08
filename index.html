@@ -166,7 +166,7 @@ async function loadEntries() {
     const { data, error } = await query;
 
 // --- ここからカウント処理 ---
-const counts = { "🍽️": 0, "💤": 0, "👀": 0, "☀️": 0, "🛁": 0 };
+const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
 
 data.forEach(e => {
     if (e.stamp && counts.hasOwnProperty(e.stamp)) {
