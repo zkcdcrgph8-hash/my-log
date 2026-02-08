@@ -44,6 +44,20 @@
         <div id="entries-container"></div>
     </div>
 
+<div class="card">
+    <div id="stamp-selector" style="margin-bottom: 15px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️" checked> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="💤"> 💤<br><span style="font-size:10px; color:#666;">睡眠</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="👀"> 👀<br><span style="font-size:10px; color:#666;">目覚</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="☀️"> ☀️<br><span style="font-size:10px; color:#666;">起床</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🛁"> 🛁<br><span style="font-size:10px; color:#666;">入浴</span></label>
+    </div>
+    
+    <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
+    <button id="btn-save">日記を保存する</button>
+</div>
+
+
     <script>
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
@@ -98,14 +112,31 @@
             await mySupabase.auth.signOut();
         };
 
-        document.getElementById('btn-save').onclick = async () => {
-            const content = document.getElementById('content').value;
-            if (!content) return;
-            const { data: { user } } = await mySupabase.auth.getUser();
-            const { error } = await mySupabase.from('entries').insert([{ content, user_id: user.id }]);
-            if (error) alert(error.message);
-            else { document.getElementById('content').value = ''; loadEntries(); }
-        };
+document.getElementById('btn-save').onclick = async () => {
+    const content = document.getElementById('content').value;
+    // 選択されているスタンプを取得
+    const stamp = document.querySelector('input[name="stamp"]:checked').value;
+    
+    if (!content) return alert("内容を入力してください");
+
+    const { data: { user } } = await mySupabase.auth.getUser();
+
+    // データベースの 'content' 列と 'stamp' 列にそれぞれ保存
+    const { error } = await mySupabase.from('entries').insert([{ 
+        content: content, 
+        stamp: stamp, 
+        user_id: user.id 
+    }]);
+
+    if (error) {
+        alert("保存エラー: " + error.message);
+    } else {
+        document.getElementById('content').value = '';
+        // 保存したらスタンプを初期位置（食事）に戻す
+        document.querySelector('input[name="stamp"][value="🍽️"]').checked = true;
+        loadEntries();
+    }
+};
 
         window.deleteEntry = async (id) => {
             if (!confirm("削除しますか？")) return;
@@ -114,21 +145,30 @@
             else loadEntries();
         };
 
-        async function loadEntries() {
-            const searchTerm = document.getElementById('search').value;
-            let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
-            if (searchTerm) query = query.ilike('content', `%${searchTerm}%`);
-            const { data, error } = await query;
-            if (error) return;
-            const container = document.getElementById('entries-container');
-            container.innerHTML = data.map(e => `
-                <div class="entry">
-                    <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
-                    ${e.content.replace(/\n/g, '<br>')}
-                    <br><small>${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+async function loadEntries() {
+    const searchTerm = document.getElementById('search').value;
+    let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
+
+    if (searchTerm) {
+        query = query.ilike('content', `%${searchTerm}%`);
+    }
+
+    const { data, error } = await query;
+    if (error) return console.error(error);
+
+    const container = document.getElementById('entries-container');
+    container.innerHTML = data.map(e => `
+        <div class="entry">
+            <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <div style="font-size: 24px;">${e.stamp || '📝'}</div> <div style="flex: 1;">
+                    <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
+                    <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
                 </div>
-            `).join('');
-        }
+            </div>
+        </div>
+    `).join('');
+}
     </script>
 </body>
 </html>
