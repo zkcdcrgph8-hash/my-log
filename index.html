@@ -162,7 +162,7 @@ async function loadEntries() {
         <div class="entry">
             <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
             <div style="display: flex; align-items: flex-start; gap: 10px;">
-        //loadEntries内の表示部分
+
 	<div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div><div style="flex: 1;">
                     <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
                     <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
