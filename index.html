@@ -33,31 +33,31 @@
         </p>
     </div>
 
-    <div id="main-section" class="hidden">
+<div id="main-section" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <h2 style="margin: 0;">My-Log</h2>
         <button id="btn-logout" class="logout-btn">ログアウト</button>
-        <h2>My-Log</h2>
-        <div class="card">
-            <div id="stamp-selector" style="margin-bottom: 15px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 10px; border-radius: 8px;">
-                <div id="stamp-selector" ...>
-    <label style="cursor:pointer;">
-        <input type="radio" name="stamp" value="" checked> 📝<br>
-        <span style="font-size:10px; color:#666;">なし</span>
-    </label>
-    
-		<label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️"> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
-                <label style="cursor:pointer;"><input type="radio" name="stamp" value="💤"> 💤<br><span style="font-size:10px; color:#666;">睡眠</span></label>
-                <label style="cursor:pointer;"><input type="radio" name="stamp" value="👀"> 👀<br><span style="font-size:10px; color:#666;">目覚</span></label>
-                <label style="cursor:pointer;"><input type="radio" name="stamp" value="☀️"> ☀️<br><span style="font-size:10px; color:#666;">起床</span></label>
-                <label style="cursor:pointer;"><input type="radio" name="stamp" value="🛁"> 🛁<br><span style="font-size:10px; color:#666;">入浴</span></label>
-            </div>
-
-            <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
-            <button id="btn-save">記録する</button>
-        </div>
-        
-        <input type="text" id="search" class="search-box" placeholder="🔍 日記を検索..." oninput="loadEntries()">
-        <div id="entries-container"></div>
     </div>
+
+    <div class="card">
+        <div id="stamp-selector" style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="" checked><br><span style="font-size:20px;">📝</span><br><span style="font-size:10px; color:#666;">なし</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🍽️"><br><span style="font-size:20px;">🍽️</span><br><span style="font-size:10px; color:#666;">食事</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="👀"><br><span style="font-size:20px;">👀</span><br><span style="font-size:10px; color:#666;">目覚</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
+        </div>
+
+        <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
+        
+        <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
+    </div>
+
+    <input type="text" id="search" class="search-box" style="width: 100%; box-sizing: border-box; margin: 20px 0;" placeholder="🔍 日記を検索..." oninput="loadEntries()">
+    
+    <div id="entries-container"></div>
+</div>
 
     <script>
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
