@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My-Log | 秘密の日記帳</title>
+    <title>My-Log-DB</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <style>
         body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; color: #333; }
@@ -35,7 +35,7 @@
 
     <div id="main-section" class="hidden">
         <button id="btn-logout" class="logout-btn">ログアウト</button>
-        <h2>今日の日記</h2>
+        <h2>My-Log</h2>
         <div class="card">
             <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
             <button id="btn-save">日記を保存する</button>
@@ -54,6 +54,9 @@
 
         // --- 状態監視 (ログイン or ログアウト のみ！) ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
+		// sessionがあるときの処理の中に
+		document.querySelector('h2').innerText = session.user.email + " の日記";
+
             if (session) {
                 authSection.classList.add('hidden');
                 mainSection.classList.remove('hidden');
