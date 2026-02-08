@@ -33,40 +33,39 @@
         </p>
     </div>
 
-<div id="main-section" class="hidden">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <h2 style="margin: 0;">My-Log</h2>
-        <button id="btn-logout" class="logout-btn">ログアウト</button>
-    </div>
-
-    <div class="card">
-        <div id="stamp-selector" style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
-            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="" checked><br><span style="font-size:20px;">📝</span><br><span style="font-size:10px; color:#666;">なし</span></label>
-            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🍽️"><br><span style="font-size:20px;">🍽️</span><br><span style="font-size:10px; color:#666;">食事</span></label>
-            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
-            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
-            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
-            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">服薬</span></label>
+    <div id="main-section" class="hidden">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <h2 style="margin: 0;">My-Log</h2>
+            <button id="btn-logout" class="logout-btn">ログアウト</button>
         </div>
 
-        <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
+        <div class="card">
+            <div id="stamp-selector" style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
+                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="" checked><br><span style="font-size:20px;">📝</span><br><span style="font-size:10px; color:#666;">なし</span></label>
+                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🍽️"><br><span style="font-size:20px;">🍽️</span><br><span style="font-size:10px; color:#666;">食事</span></label>
+                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
+                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
+                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
+                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">服薬</span></label>
+            </div>
+
+            <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
+            
+            <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
+        </div>
+
+        <input type="text" id="search" class="search-box" style="width: 100%; box-sizing: border-box; margin: 20px 0;" placeholder="🔍 日記を検索..." oninput="loadEntries()">
         
-        <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
+        <div id="stats-panel" style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; display: flex; justify-content: space-around; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+            <div>🍽️ <span id="count-meal">0</span></div>
+            <div>☀️ <span id="count-active">0</span></div>
+            <div>💤 <span id="count-sleep">0</span></div>
+            <div>🛁 <span id="count-bath">0</span></div>
+            <div>💊 <span id="count-med">0</span></div>
+        </div>
+
+        <div id="entries-container"></div>
     </div>
-
-    <input type="text" id="search" class="search-box" style="width: 100%; box-sizing: border-box; margin: 20px 0;" placeholder="🔍 日記を検索..." oninput="loadEntries()">
-    
-<div id="stats-panel" style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; display: flex; justify-content: space-around; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
-    <div>🍽️ <span id="count-meal">0</span></div>
-    <div>☀️ <span id="count-active">0</span></div>
-    <div>💤 <span id="count-sleep">0</span></div>
-    <div>🛁 <span id="count-bath">0</span></div>
-    <div>💊 <span id="count-med">0</span></div>
-</div>
-
-<div id="entries-container"></div>
-
-</div>
 
     <script>
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
@@ -76,7 +75,7 @@
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
 
-        // --- 状態監視 (ログイン or ログアウト のみ！) ---
+        // --- 状態監視 ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
             if (session) {
                 authSection.classList.add('hidden');
@@ -88,27 +87,25 @@
             }
         });
 
-        // --- パスワードリセットメール送信 ---
+        // --- パスワードリセット ---
         document.getElementById('link-reset').onclick = async (e) => {
             e.preventDefault();
             const email = document.getElementById('email').value;
             if (!email) return alert("メールアドレスを入力してください");
-
             const { error } = await mySupabase.auth.resetPasswordForEmail(email, {
                 redirectTo: 'https://zkcdcrgph8-hash.github.io/my-log/reset.html',
             });
-
             if (error) alert(error.message);
             else alert("再設定メールを送信しました！");
         };
 
-        // --- 以下、ログイン・登録・保存・削除のコード（変更なし） ---
+        // --- 登録・ログイン・ログアウト ---
         document.getElementById('btn-signup').onclick = async () => {
             const email = document.getElementById('email').value;
             const password = document.getElementById('password').value;
             const { error } = await mySupabase.auth.signUp({ email, password });
             if (error) alert(error.message);
-            else alert("登録完了！");
+            else alert("登録完了！確認メールをチェックしてください。");
         };
 
         document.getElementById('btn-login').onclick = async () => {
@@ -122,33 +119,36 @@
             await mySupabase.auth.signOut();
         };
 
-document.getElementById('btn-save').onclick = async () => {
-    const content = document.getElementById('content').value;
-    // 選択されているスタンプを取得
-    const noneStamp = document.querySelector('input[name="stamp"][value=""]');
-	if(noneStamp){ noneStamp.checked=true; }
-    
-    if (!content) return alert("内容を入力してください");
+        // --- 記録の保存 (修正済) ---
+        document.getElementById('btn-save').onclick = async () => {
+            const content = document.getElementById('content').value;
+            
+            // 選択されているスタンプを取得 (Supabaseに送る前に実行)
+            const selectedStampElement = document.querySelector('input[name="stamp"]:checked');
+            const stamp = selectedStampElement ? selectedStampElement.value : "";
+            
+            if (!content) return alert("内容を入力してください");
 
-    const { data: { user } } = await mySupabase.auth.getUser();
+            const { data: { user } } = await mySupabase.auth.getUser();
 
-    // データベースの 'content' 列と 'stamp' 列にそれぞれ保存
-    const { error } = await mySupabase.from('entries').insert([{ 
-        content: content, 
-        stamp: stamp, 
-        user_id: user.id 
-    }]);
+            const { error } = await mySupabase.from('entries').insert([{ 
+                content: content, 
+                stamp: stamp, 
+                user_id: user.id 
+            }]);
 
-    if (error) {
-        alert("保存エラー: " + error.message);
-    } else {
-        document.getElementById('content').value = '';
-        // 保存したらスタンプを初期位置（食事）に戻す
-        document.querySelector('input[name="stamp"][value="📝"]').checked = true;
-        loadEntries();
-    }
-};
+            if (error) {
+                alert("保存エラー: " + error.message);
+            } else {
+                document.getElementById('content').value = '';
+                // 保存したらスタンプを「なし(空文字)」に戻す
+                const noneStamp = document.querySelector('input[name="stamp"][value=""]');
+                if (noneStamp) noneStamp.checked = true;
+                loadEntries();
+            }
+        };
 
+        // --- 削除 ---
         window.deleteEntry = async (id) => {
             if (!confirm("削除しますか？")) return;
             const { error } = await mySupabase.from('entries').delete().eq('id', id);
@@ -156,49 +156,47 @@ document.getElementById('btn-save').onclick = async () => {
             else loadEntries();
         };
 
-async function loadEntries() {
-    const searchTerm = document.getElementById('search').value;
-    let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
+        // --- 一覧表示と統計 (修正済) ---
+        async function loadEntries() {
+            const searchTerm = document.getElementById('search').value;
+            let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
 
-    if (searchTerm) {
-        query = query.ilike('content', `%${searchTerm}%`);
-    }
+            if (searchTerm) {
+                query = query.ilike('content', `%${searchTerm}%`);
+            }
 
-    const { data, error } = await query;
+            const { data, error } = await query;
+            if (error) return console.error(error);
 
-// --- ここからカウント処理 ---
-const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
+            // --- 統計処理 ---
+            const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
+            data.forEach(e => {
+                if (e.stamp && counts.hasOwnProperty(e.stamp)) {
+                    counts[e.stamp]++;
+                }
+            });
 
-data.forEach(e => {
-    if (e.stamp && counts.hasOwnProperty(e.stamp)) {
-        counts[e.stamp]++;
-    }
-});
+            document.getElementById('count-meal').innerText = counts["🍽️"];
+            document.getElementById('count-active').innerText = counts["☀️"];
+            document.getElementById('count-sleep').innerText = counts["💤"];
+            document.getElementById('count-bath').innerText = counts["🛁"];
+            document.getElementById('count-med').innerText = counts["💊"];
 
-// 画面の数字を更新
-document.getElementById('count-meal').innerText = counts["🍽️"];
-document.getElementById('count-active').innerText = counts["☀️"];
-document.getElementById('count-sleep').innerText = counts["💤"];
-document.getElementById('count-bath').innerText = counts["🛁"];
-document.getElementById('count-med').innerText = counts["💊"];
-// --- ここまで ---
-
-    if (error) return console.error(error);
-
-    const container = document.getElementById('entries-container');
-    container.innerHTML = data.map(e => `
-        <div class="entry">
-            <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
-            <div style="display: flex; align-items: flex-start; gap: 10px;">
-
-	<div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div><div style="flex: 1;">
-                    <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
-                    <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+            // --- HTML表示 ---
+            const container = document.getElementById('entries-container');
+            container.innerHTML = data.map(e => `
+                <div class="entry">
+                    <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
+                    <div style="display: flex; align-items: flex-start; gap: 10px;">
+                        <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
+                        <div style="flex: 1;">
+                            <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
+                            <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+                        </div>
+                    </div>
                 </div>
-            </div>
-        </div>
-    `).join('');
-}
+            `).join('');
+        }
     </script>
 </body>
 </html>
