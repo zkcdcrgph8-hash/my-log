@@ -37,6 +37,15 @@
         <button id="btn-logout" class="logout-btn">ログアウト</button>
         <h2>My-Log</h2>
         <div class="card">
+
+    <div id="stamp-selector" style="margin-bottom: 15px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 10px; border-radius: 8px;">
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️" checked> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="💤"> 💤<br><span style="font-size:10px; color:#666;">睡眠</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="👀"> 👀<br><span style="font-size:10px; color:#666;">目覚</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="☀️"> ☀️<br><span style="font-size:10px; color:#666;">起床</span></label>
+        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🛁"> 🛁<br><span style="font-size:10px; color:#666;">入浴</span></label>
+    </div>
+
             <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
             <button id="btn-save">記録する</button>
         </div>
@@ -45,13 +54,6 @@
     </div>
 
 <div class="card">
-    <div id="stamp-selector" style="margin-bottom: 15px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 10px; border-radius: 8px;">
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️" checked> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="💤"> 💤<br><span style="font-size:10px; color:#666;">睡眠</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="👀"> 👀<br><span style="font-size:10px; color:#666;">目覚</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="☀️"> ☀️<br><span style="font-size:10px; color:#666;">起床</span></label>
-        <label style="cursor:pointer;"><input type="radio" name="stamp" value="🛁"> 🛁<br><span style="font-size:10px; color:#666;">入浴</span></label>
-    </div>
     
     <textarea id="content" placeholder="今日はどんな一日だった？" rows="3"></textarea>
     <button id="btn-save">日記を保存する</button>
