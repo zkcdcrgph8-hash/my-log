@@ -46,7 +46,7 @@
             <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
             <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
             <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
-            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">お薬</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">服薬</span></label>
         </div>
 
         <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
@@ -58,10 +58,10 @@
     
 <div id="stats-panel" style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; display: flex; justify-content: space-around; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
     <div>🍽️ <span id="count-meal">0</span></div>
-    <div>💤 <span id="count-sleep">0</span></div>
-    <div>👀 <span id="count-wakeup">0</span></div>
     <div>☀️ <span id="count-active">0</span></div>
+    <div>💤 <span id="count-sleep">0</span></div>
     <div>🛁 <span id="count-bath">0</span></div>
+    <div>💊 <span id="count-hukuyaku">0</span></div>
 </div>
 
 <div id="entries-container"></div>
@@ -167,7 +167,6 @@ async function loadEntries() {
 
 // --- ここからカウント処理 ---
 const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
-const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
 
 data.forEach(e => {
     if (e.stamp && counts.hasOwnProperty(e.stamp)) {
@@ -180,7 +179,7 @@ document.getElementById('count-meal').innerText = counts["🍽️"];
 document.getElementById('count-active').innerText = counts["☀️"];
 document.getElementById('count-sleep').innerText = counts["💤"];
 document.getElementById('count-bath').innerText = counts["🛁"];
-document.getElementById('count-wakeup').innerText = counts["💊"];
+document.getElementById('count-').innerText = counts["💊"];
 // --- ここまで ---
 
     if (error) return console.error(error);
