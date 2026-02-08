@@ -162,7 +162,7 @@
             let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
 
             if (searchTerm) {
-                query = query.ilike('content', `%${searchTerm}%`);
+                query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
             }
 
             const { data, error } = await query;
