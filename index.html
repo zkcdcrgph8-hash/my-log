@@ -125,7 +125,8 @@
 document.getElementById('btn-save').onclick = async () => {
     const content = document.getElementById('content').value;
     // 選択されているスタンプを取得
-    const stamp = document.querySelector('input[name="stamp"]:checked').value;
+    const noneStamp = document.querySelector('input[name="stamp"][value=""]';
+	if(noneStamp){ noneStamp.checked=true; }
     
     if (!content) return alert("内容を入力してください");
 
