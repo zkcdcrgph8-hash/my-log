@@ -160,65 +160,68 @@
             else loadEntries();
         };
 
-        // --- 一覧表示と統計 (修正済) ---
+// --- 一覧表示と統計 (修正済) ---
 async function loadEntries() {
     const searchTerm = document.getElementById('search').value;
     const dateTerm = document.getElementById('date-search').value; // カレンダーの値(YYYY-MM-DD)
     
     let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
 
-    // 1. キーワード検索がある場合
+    // 1. キーワード検索
     if (searchTerm) {
         query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
     }
 
-    // 2. 日付検索がある場合（作成日時 'created_at' でフィルタリング）
+    // 2. 日付検索
     if (dateTerm) {
-        // 選んだ日の 00:00:00 から 23:59:59 までを対象にする
         query = query.gte('created_at', `${dateTerm}T00:00:00`)
                      .lte('created_at', `${dateTerm}T23:59:59`);
     }
 
     const { data, error } = await query;
-}
 
-// リセットボタンの処理
+    // --- ここにエラーチェックを戻します ---
+    if (error) {
+        console.error(error);
+        return;
+    }
+
+    // --- 統計処理 ---
+    const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
+    data.forEach(e => {
+        if (e.stamp && counts.hasOwnProperty(e.stamp)) {
+            counts[e.stamp]++;
+        }
+    });
+
+    document.getElementById('count-meal').innerText = counts["🍽️"];
+    document.getElementById('count-active').innerText = counts["☀️"];
+    document.getElementById('count-sleep').innerText = counts["💤"];
+    document.getElementById('count-bath').innerText = counts["🛁"];
+    document.getElementById('count-med').innerText = counts["💊"];
+
+    // --- HTML表示 (ここも関数の中に含めます) ---
+    const container = document.getElementById('entries-container');
+    container.innerHTML = data.map(e => `
+        <div class="entry">
+            <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
+            <div style="display: flex; align-items: flex-start; gap: 10px;">
+                <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
+                <div style="flex: 1;">
+                    <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
+                    <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+                </div>
+            </div>
+        </div>
+    `).join('');
+} // ここで loadEntries 関数が終了！
+
+// リセットボタンの処理 (これは独立した関数でOK)
 function clearSearch() {
     document.getElementById('search').value = '';
     document.getElementById('date-search').value = '';
     loadEntries();
 }
-            if (error) return console.error(error);
-
-            // --- 統計処理 ---
-            const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
-            data.forEach(e => {
-                if (e.stamp && counts.hasOwnProperty(e.stamp)) {
-                    counts[e.stamp]++;
-                }
-            });
-
-            document.getElementById('count-meal').innerText = counts["🍽️"];
-            document.getElementById('count-active').innerText = counts["☀️"];
-            document.getElementById('count-sleep').innerText = counts["💤"];
-            document.getElementById('count-bath').innerText = counts["🛁"];
-            document.getElementById('count-med').innerText = counts["💊"];
-
-            // --- HTML表示 ---
-            const container = document.getElementById('entries-container');
-            container.innerHTML = data.map(e => `
-                <div class="entry">
-                    <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
-                    <div style="display: flex; align-items: flex-start; gap: 10px;">
-                        <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
-                        <div style="flex: 1;">
-                            <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
-                            <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
-                        </div>
-                    </div>
-                </div>
-            `).join('');
-        }
     </script>
 </body>
 </html>
