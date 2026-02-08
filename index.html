@@ -38,7 +38,13 @@
         <h2>My-Log</h2>
         <div class="card">
             <div id="stamp-selector" style="margin-bottom: 15px; display: flex; justify-content: space-around; background: #f8f9fa; padding: 10px; border-radius: 8px;">
-                <label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️" checked> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
+                <div id="stamp-selector" ...>
+    <label style="cursor:pointer;">
+        <input type="radio" name="stamp" value="" checked> 📝<br>
+        <span style="font-size:10px; color:#666;">なし</span>
+    </label>
+    
+		<label style="cursor:pointer;"><input type="radio" name="stamp" value="🍽️"> 🍽️<br><span style="font-size:10px; color:#666;">食事</span></label>
                 <label style="cursor:pointer;"><input type="radio" name="stamp" value="💤"> 💤<br><span style="font-size:10px; color:#666;">睡眠</span></label>
                 <label style="cursor:pointer;"><input type="radio" name="stamp" value="👀"> 👀<br><span style="font-size:10px; color:#666;">目覚</span></label>
                 <label style="cursor:pointer;"><input type="radio" name="stamp" value="☀️"> ☀️<br><span style="font-size:10px; color:#666;">起床</span></label>
@@ -156,7 +162,8 @@ async function loadEntries() {
         <div class="entry">
             <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
             <div style="display: flex; align-items: flex-start; gap: 10px;">
-                <div style="font-size: 24px;">${e.stamp || '📝'}</div> <div style="flex: 1;">
+        // loadEntries内の表示部分
+	<div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div><div style="flex: 1;">
                     <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
                     <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
                 </div>
