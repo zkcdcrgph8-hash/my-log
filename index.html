@@ -56,7 +56,16 @@
 
     <input type="text" id="search" class="search-box" style="width: 100%; box-sizing: border-box; margin: 20px 0;" placeholder="🔍 日記を検索..." oninput="loadEntries()">
     
-    <div id="entries-container"></div>
+<div id="stats-panel" style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; display: flex; justify-content: space-around; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+    <div>🍽️ <span id="count-meal">0</span></div>
+    <div>💤 <span id="count-sleep">0</span></div>
+    <div>👀 <span id="count-wakeup">0</span></div>
+    <div>☀️ <span id="count-active">0</span></div>
+    <div>🛁 <span id="count-bath">0</span></div>
+</div>
+
+<div id="entries-container"></div>
+
 </div>
 
     <script>
@@ -155,6 +164,24 @@ async function loadEntries() {
     }
 
     const { data, error } = await query;
+
+// --- ここからカウント処理 ---
+const counts = { "🍽️": 0, "💤": 0, "👀": 0, "☀️": 0, "🛁": 0 };
+
+data.forEach(e => {
+    if (e.stamp && counts.hasOwnProperty(e.stamp)) {
+        counts[e.stamp]++;
+    }
+});
+
+// 画面の数字を更新
+document.getElementById('count-meal').innerText = counts["🍽️"];
+document.getElementById('count-sleep').innerText = counts["💤"];
+document.getElementById('count-wakeup').innerText = counts["👀"];
+document.getElementById('count-active').innerText = counts["☀️"];
+document.getElementById('count-bath').innerText = counts["🛁"];
+// --- ここまで ---
+
     if (error) return console.error(error);
 
     const container = document.getElementById('entries-container');
