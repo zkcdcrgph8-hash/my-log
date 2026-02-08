@@ -54,21 +54,21 @@
         <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
     </div>
 
-    <div style="display: flex; gap: 10px; margin-bottom: 20px; align-items: stretch;">
+<div style="display: flex; gap: 8px; margin-bottom: 20px; align-items: stretch;">
     <div style="position: relative; flex: 1;">
         <input type="text" id="search" class="search-box" style="width: 100%; margin: 0; padding-left: 35px; height: 46px;" placeholder="検索..." oninput="loadEntries()">
         <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">🔍</span>
     </div>
 
     <div style="position: relative; width: 50px;">
-        <button type="button" style="width: 100%; height: 100%; margin: 0; background: white; border: 1px solid #ddd; font-size: 20px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('date-search').showPicker()">
+        <button type="button" id="btn-calendar" style="width: 100%; height: 46px; margin: 0; background: white; border: 1px solid #ddd; font-size: 20px; border-radius: 6px; cursor: pointer;" onclick="document.getElementById('date-search').showPicker()">
             🗓️
         </button>
-        <input type="date" id="date-search" onchange="loadEntries()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; pointer-events: none;">
+        <input type="date" id="date-search" onchange="loadEntries()" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: -1;">
     </div>
 
-    <button onclick="clearSearch()" style="width: auto; margin: 0; background: #666; padding: 0 15px; font-size: 14px; border-radius: 6px; white-space: nowrap;">
-        リセット
+    <button onclick="clearSearch()" style="width: 50px; height: 46px; margin: 0; background: #666; color: white; border: none; font-size: 18px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="検索をリセット">
+        🔄
     </button>
 </div>
 
@@ -174,19 +174,29 @@
             else loadEntries();
         };
 
-// --- 一覧表示と統計 (修正済) ---
+// --- 一覧表示と統計 ---
 async function loadEntries() {
     const searchTerm = document.getElementById('search').value;
-    const dateTerm = document.getElementById('date-search').value; // カレンダーの値(YYYY-MM-DD)
+    const dateTerm = document.getElementById('date-search').value; 
     
+    // カレンダーボタンの色を変える（選択中かどうかわかりやすくする）
+    const calBtn = document.getElementById('btn-calendar');
+    if (dateTerm) {
+        calBtn.style.background = '#e7f3ff';
+        calBtn.style.borderColor = '#007bff';
+    } else {
+        calBtn.style.background = 'white';
+        calBtn.style.borderColor = '#ddd';
+    }
+
     let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
 
-    // 1. キーワード検索
+    // 1. キーワード検索（部分一致）
     if (searchTerm) {
         query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
     }
 
-    // 2. 日付検索（日本時間の 00:00:00+09:00 から 23:59:59+09:00 まで）
+    // 2. 日付検索（日本時間の 00:00:00 から 23:59:59 まで）
     if (dateTerm) {
         query = query.gte('created_at', `${dateTerm}T00:00:00+09:00`)
                      .lte('created_at', `${dateTerm}T23:59:59+09:00`);
@@ -194,9 +204,8 @@ async function loadEntries() {
 
     const { data, error } = await query;
 
-    // --- ここにエラーチェックを戻します ---
     if (error) {
-        console.error(error);
+        console.error("データ取得エラー:", error);
         return;
     }
 
@@ -214,27 +223,31 @@ async function loadEntries() {
     document.getElementById('count-bath').innerText = counts["🛁"];
     document.getElementById('count-med').innerText = counts["💊"];
 
-    // --- HTML表示 (ここも関数の中に含めます) ---
+    // --- HTML表示 ---
     const container = document.getElementById('entries-container');
-    container.innerHTML = data.map(e => `
-        <div class="entry">
-            <button class="del-btn" onclick="deleteEntry(${e.id})">🗑️</button>
-            <div style="display: flex; align-items: flex-start; gap: 10px;">
-                <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
-                <div style="flex: 1;">
-                    <div style="margin-bottom: 5px;">${e.content.replace(/\n/g, '<br>')}</div>
-                    <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+    if (data.length === 0) {
+        container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">データが見つかりません</p>';
+    } else {
+        container.innerHTML = data.map(e => `
+            <div class="entry">
+                <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
+                    <div style="flex: 1;">
+                        <div style="margin-bottom: 5px; word-break: break-all;">${e.content.replace(/\n/g, '<br>')}</div>
+                        <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+                    </div>
                 </div>
             </div>
-        </div>
-    `).join('');
-} // ここで loadEntries 関数が終了！
+        `).join('');
+    }
+}
 
-// リセットボタンの処理 (これは独立した関数でOK)
+// 検索リセット関数
 function clearSearch() {
     document.getElementById('search').value = '';
     document.getElementById('date-search').value = '';
-    loadEntries();
+    loadEntries(); // 全件表示に戻す
 }
     </script>
 </body>
