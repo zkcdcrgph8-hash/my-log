@@ -178,7 +178,12 @@
 // --- 一覧表示と統計 ---
 async function loadEntries() {
     const searchTerm = document.getElementById('search').value;
-    const dateTerm = document.getElementById('date-search').value; 
+    const dateTerm = document.getElementById('date-search').value;
+
+// --- 現在ログインしているユーザーを取得 ---
+    const { data: { user } } = await mySupabase.auth.getUser();
+    if (!user) return; // ログインしていなければ中断
+
     
     // カレンダーボタンの色を変える（選択中かどうかわかりやすくする）
     const calBtn = document.getElementById('btn-calendar-visual');
@@ -190,7 +195,12 @@ async function loadEntries() {
         calBtn.style.borderColor = '#ddd';
     }
 
-    let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
+    //let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
+
+let query = mySupabase.from('entries')
+        .select('*')
+        .eq('user_id', user.id) // 自分のIDと一致するデータのみ抽出
+        .order('created_at', { ascending: false });
 
     // 1. キーワード検索（部分一致）
     if (searchTerm) {
