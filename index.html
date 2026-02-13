@@ -22,7 +22,7 @@
 </head>
 <body>
 
-    <div id="auth-section" class="card">
+    <div id="auth-section" class="card hidden">
         <h2 style="text-align:center;">My-Log-DB</h2>
         <input type="email" id="email" placeholder="メールアドレス">
         <input type="password" id="password" placeholder="パスワード">
@@ -32,6 +32,11 @@
             <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
         </p>
     </div>
+
+<div id="loading-screen" style="text-align:center; margin-top: 100px;">
+    <p style="color: #666;">読み込み中...</p>
+</div>
+
 
     <div id="main-section" class="hidden">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -96,7 +101,10 @@
 
         // --- 状態監視 ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
-            if (session) {
+        
+	loadingScreen.classList.add('hidden');
+    
+	if (session) {
                 authSection.classList.add('hidden');
                 mainSection.classList.remove('hidden');
                 loadEntries();
@@ -195,12 +203,13 @@ async function loadEntries() {
         calBtn.style.borderColor = '#ddd';
     }
 
-    //let query = mySupabase.from('entries').select('*').order('created_at', { ascending: false });
-
 let query = mySupabase.from('entries')
         .select('*')
         .eq('user_id', user.id) // 自分のIDと一致するデータのみ抽出
         .order('created_at', { ascending: false });
+
+
+
 
     // 1. キーワード検索（部分一致）
     if (searchTerm) {
