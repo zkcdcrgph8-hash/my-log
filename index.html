@@ -18,6 +18,20 @@
         .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; cursor: pointer; }
         .del-btn:hover { color: #dc3545; }
         .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
+	.input-container {
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* スマホで入力中の時だけ、順番を逆転させる */
+        .input-focused {
+            flex-direction: column-reverse !important;
+        }
+
+        /* ボタンがキーボードのすぐ上に張り付くように余白を調整 */
+        .input-focused button {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -43,20 +57,21 @@
             <button id="btn-logout" class="logout-btn">ログアウト</button>
         </div>
 
-        <div class="card">
-            <div id="stamp-selector" style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
-                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="" checked><br><span style="font-size:20px;">📝</span><br><span style="font-size:10px; color:#666;">なし</span></label>
-                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🍽️"><br><span style="font-size:20px;">🍽️</span><br><span style="font-size:10px; color:#666;">食事</span></label>
-                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
-                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
-                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
-                <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">服薬</span></label>
-            </div>
-
-        <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
-        
-        <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
+        <div class="card input-container" id="entry-card">
+    <div id="stamp-selector" style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
+        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="" checked><br><span style="font-size:20px;">📝</span><br><span style="font-size:10px; color:#666;">なし</span></label>
+        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🍽️"><br><span style="font-size:20px;">🍽️</span><br><span style="font-size:10px; color:#666;">食事</span></label>
+        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
+        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
+        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
+        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">服薬</span></label>
     </div>
+
+    <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
+    
+    <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
+</div>
+
 
 <div style="display: flex; gap: 8px; margin-bottom: 20px; align-items: stretch;">
     <div style="position: relative; flex: 1;">
@@ -281,6 +296,27 @@ function clearSearch() {
     document.getElementById('date-search').value = '';
     loadEntries(); // 全件表示に戻す
 }
+
+const contentArea = document.getElementById('content');
+const entryCard = document.getElementById('entry-card');
+
+// テキストエリアに指が触れた（フォーカスした）時
+contentArea.addEventListener('focus', () => {
+    // スマホ（画面幅が狭いデバイス）の時だけ実行
+    if (window.innerWidth < 600) {
+        entryCard.classList.add('input-focused');
+        // 少し遅らせてボタンまでスクロールさせる
+        setTimeout(() => {
+            entryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 300);
+    }
+});
+
+// 入力が終わって外を触れた（フォーカスが外れた）時
+contentArea.addEventListener('blur', () => {
+    entryCard.classList.remove('input-focused');
+});
+
     </script>
 </body>
 </html>
