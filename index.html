@@ -185,83 +185,95 @@
 
 // --- 一覧表示と統計 ---
 async function loadEntries() {
-    const searchTerm = document.getElementById('search').value;
-    const dateTerm = document.getElementById('date-search').value;
-
-// --- 現在ログインしているユーザーを取得 ---
-    const { data: { user } } = await mySupabase.auth.getUser();
-    if (!user) return; // ログインしていなければ中断
-
-    
-    // カレンダーボタンの色を変える（選択中かどうかわかりやすくする）
-    const calBtn = document.getElementById('btn-calendar-visual');
-    if (dateTerm) {
-        calBtn.style.background = '#e7f3ff';
-        calBtn.style.borderColor = '#007bff';
-    } else {
-        calBtn.style.background = 'white';
-        calBtn.style.borderColor = '#ddd';
-    }
-
-let query = mySupabase.from('entries')
-        .select('*')
-        .eq('user_id', user.id) // 自分のIDと一致するデータのみ抽出
-        .order('created_at', { ascending: false });
-
-
-
-
-    // 1. キーワード検索（部分一致）
-    if (searchTerm) {
-        query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
-    }
-
-    // 2. 日付検索（日本時間の 00:00:00 から 23:59:59 まで）
-    if (dateTerm) {
-        query = query.gte('created_at', `${dateTerm}T00:00:00+09:00`)
-                     .lte('created_at', `${dateTerm}T23:59:59+09:00`);
-    }
-
-    const { data, error } = await query;
-
-    if (error) {
-        console.error("データ取得エラー:", error);
-        return;
-    }
-
-    // --- 統計処理 ---
-    const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
-    data.forEach(e => {
-        if (e.stamp && counts.hasOwnProperty(e.stamp)) {
-            counts[e.stamp]++;
-        }
-    });
-
-    document.getElementById('count-meal').innerText = counts["🍽️"];
-    document.getElementById('count-active').innerText = counts["☀️"];
-    document.getElementById('count-sleep').innerText = counts["💤"];
-    document.getElementById('count-bath').innerText = counts["🛁"];
-    document.getElementById('count-med').innerText = counts["💊"];
-
-    // --- HTML表示 ---
     const container = document.getElementById('entries-container');
-    if (data.length === 0) {
-        container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">データが見つかりません</p>';
-    } else {
-        container.innerHTML = data.map(e => `
-            <div class="entry">
-                <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
-                    <div style="flex: 1;">
-                        <div style="margin-bottom: 5px; word-break: break-all;">${e.content.replace(/\n/g, '<br>')}</div>
-                        <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+    const searchTerm = document.getElementById('search').value;
+    const dateTerm = document.getElementById('date-search').value; 
+    
+    try {
+        // 1. ユーザー情報の取得（通信失敗の可能性がある最初の関門）
+        const { data: { user }, error: authError } = await mySupabase.auth.getUser();
+        if (authError) throw authError;
+        if (!user) return;
+
+        // UIの更新（カレンダーボタンの色）
+        const calBtn = document.getElementById('btn-calendar-visual');
+        if (calBtn) {
+            calBtn.style.background = dateTerm ? '#e7f3ff' : 'white';
+            calBtn.style.borderColor = dateTerm ? '#007bff' : '#ddd';
+        }
+
+        // 2. クエリの構築
+        let query = mySupabase.from('entries').select('*').eq('user_id', user.id);
+
+        if (searchTerm) {
+            query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
+        }
+        if (dateTerm) {
+            query = query.gte('created_at', `${dateTerm}T00:00:00+09:00`)
+                         .lte('created_at', `${dateTerm}T23:59:59+09:00`);
+        }
+
+        // 3. データ取得の実行
+        const { data, error } = await query.order('created_at', { ascending: false });
+
+        // ネットワークエラーやタイムアウト、サーバーエラーのハンドリング
+        if (error) throw error;
+        if (!data) throw new Error("データが取得できませんでした");
+
+        // --- 統計処理 ---
+        const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
+        data.forEach(e => {
+            if (e.stamp && counts.hasOwnProperty(e.stamp)) {
+                counts[e.stamp]++;
+            }
+        });
+
+        document.getElementById('count-meal').innerText = counts["🍽️"];
+        document.getElementById('count-active').innerText = counts["☀️"];
+        document.getElementById('count-sleep').innerText = counts["💤"];
+        document.getElementById('count-bath').innerText = counts["🛁"];
+        document.getElementById('count-med').innerText = counts["💊"];
+
+        // --- HTML表示 ---
+        if (data.length === 0) {
+            container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">データが見つかりません</p>';
+        } else {
+            container.innerHTML = data.map(e => {
+                // XSS対策：HTMLエスケープ処理
+                const safeContent = e.content
+                    .replace(/&/g, "&amp;")
+                    .replace(/</g, "&lt;")
+                    .replace(/>/g, "&gt;")
+                    .replace(/"/g, "&quot;")
+                    .replace(/'/g, "&#039;")
+                    .replace(/\n/g, '<br>');
+
+                return `
+                    <div class="entry">
+                        <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
+                        <div style="display: flex; align-items: flex-start; gap: 10px;">
+                            <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
+                            <div style="flex: 1;">
+                                <div style="margin-bottom: 5px; word-break: break-all;">${safeContent}</div>
+                                <small style="color: #999;">${new Date(e.created_at).toLocaleString('ja-JP')}</small>
+                            </div>
+                        </div>
                     </div>
-                </div>
+                `;
+            }).join('');
+        }
+
+    } catch (err) {
+        console.error("致命的なエラー:", err);
+        container.innerHTML = `
+            <div style="text-align:center; padding: 20px; color: #dc3545;">
+                <p>⚠️ 通信エラーが発生しました</p>
+                <button onclick="loadEntries()" style="width: auto; padding: 8px 15px; font-size: 14px;">再試行</button>
             </div>
-        `).join('');
+        `;
     }
 }
+
 
 // 検索リセット関数
 function clearSearch() {
