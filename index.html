@@ -98,6 +98,7 @@
 
         const authSection = document.getElementById('auth-section');
         const mainSection = document.getElementById('main-section');
+	const loadingScreen = document. getElementById('loa ding-screen');
 
         // --- 状態監視 ---
         mySupabase.auth.onAuthStateChange(async (event, session) => {
