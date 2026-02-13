@@ -32,6 +32,11 @@
         .input-focused button {
             margin-bottom: 10px;
         }
+	.input-focused label {
+	    cursor: pointer;
+	    z-index: 10; /* 他の要素より手前に出す */
+	}
+
     </style>
 </head>
 <body>
@@ -300,16 +305,13 @@ function clearSearch() {
 const contentArea = document.getElementById('content');
 const entryCard = document.getElementById('entry-card');
 
-// テキストエリアに指が触れた（フォーカスした）時
-contentArea.addEventListener('focus', () => {
-    // スマホ（画面幅が狭いデバイス）の時だけ実行
-    if (window.innerWidth < 600) {
-        entryCard.classList.add('input-focused');
-        // 少し遅らせてボタンまでスクロールさせる
-        setTimeout(() => {
-            entryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }, 300);
-    }
+// 入力が終わって外を触れた（フォーカスが外れた）時
+contentArea.addEventListener('blur', () => {
+    // 0.2秒だけ待ってからレイアウトを戻す
+    // これにより、ボタンを押す判定が先に完了するようになります
+    setTimeout(() => {
+        entryCard.classList.remove('input-focused');
+    }, 200); 
 });
 
 // 入力が終わって外を触れた（フォーカスが外れた）時
