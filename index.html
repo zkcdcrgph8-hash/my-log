@@ -18,24 +18,38 @@
         .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; cursor: pointer; }
         .del-btn:hover { color: #dc3545; }
         .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
-	.input-container {
+
+        /* --- ここから修正版 --- */
+        .input-container {
             display: flex;
             flex-direction: column;
         }
 
-        /* スマホで入力中の時だけ、順番を逆転させる */
+        /* スマホで入力中のレイアウト逆転 */
         .input-focused {
             flex-direction: column-reverse !important;
         }
 
-        /* ボタンがキーボードのすぐ上に張り付くように余白を調整 */
-        .input-focused button {
+        /* 入力中、記録ボタンの下に余白を作って押しやすくする */
+        .input-focused #btn-save {
+            margin-bottom: 15px;
+            position: relative;
+            z-index: 20; /* 最前面に持ってくる */
+        }
+
+        /* 入力中、スタンプを一番下（逆転しているので視覚的には一番上）に配置 */
+        .input-focused #stamp-selector {
+            order: 3; 
             margin-bottom: 10px;
         }
-	.input-focused label {
-	    cursor: pointer;
-	    z-index: 10; /* 他の要素より手前に出す */
-	}
+
+        /* スタンプのラベル自体のタップ反応を強化 */
+        .input-focused label {
+            cursor: pointer;
+            z-index: 20;
+            padding: 5px;
+        }
+        /* --- ここまで --- */
 
     </style>
 </head>
@@ -302,22 +316,29 @@ function clearSearch() {
     loadEntries(); // 全件表示に戻す
 }
 
+// --- スマホ入力時のレイアウト調整（最新版） ---
 const contentArea = document.getElementById('content');
 const entryCard = document.getElementById('entry-card');
 
-// 入力が終わって外を触れた（フォーカスが外れた）時
-contentArea.addEventListener('blur', () => {
-    // 0.2秒だけ待ってからレイアウトを戻す
-    // これにより、ボタンを押す判定が先に完了するようになります
-    setTimeout(() => {
-        entryCard.classList.remove('input-focused');
-    }, 200); 
-});
+if (contentArea && entryCard) {
+    // 1. フォーカスした時：クラスを追加してボタンを上に逃がす
+    contentArea.addEventListener('focus', () => {
+        if (window.innerWidth < 600) {
+            entryCard.classList.add('input-focused');
+            // スムーズに表示位置を調整
+            setTimeout(() => {
+                entryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 300);
+        }
+    });
 
-// 入力が終わって外を触れた（フォーカスが外れた）時
-contentArea.addEventListener('blur', () => {
-    entryCard.classList.remove('input-focused');
-});
+    // 2. フォーカスが外れた時：【ここが重要】0.2秒待ってから戻す！
+    contentArea.addEventListener('blur', () => {
+        setTimeout(() => {
+            entryCard.classList.remove('input-focused');
+        }, 200); // この0.2秒の猶予が「空振り」を防ぎます
+    });
+}
 
     </script>
 </body>
