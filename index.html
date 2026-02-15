@@ -125,6 +125,16 @@
     </div>
 
     <script>
+
+	// 【部品】文字列をハッシュに変える魔法の関数（そのまま貼るだけ！）
+	async function generateHash(text) {
+	    const msgUint8 = new TextEncoder().encode(text);
+	    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+	    const hashArray = Array.from(new Uint8Array(hashBuffer));
+	    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+	}
+
+
         const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
         const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
         const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
@@ -182,32 +192,41 @@
 
         // --- 記録の保存 (修正済) ---
         document.getElementById('btn-save').onclick = async () => {
-            const content = document.getElementById('content').value;
-            
-            // 選択されているスタンプを取得 (Supabaseに送る前に実行)
-            const selectedStampElement = document.querySelector('input[name="stamp"]:checked');
-            const stamp = selectedStampElement ? selectedStampElement.value : "";
-            
-            if (!content) return alert("内容を入力してください");
+	    const content = document.getElementById('content').value;
+	    const selectedStampElement = document.querySelector('input[name="stamp"]:checked');
+	    const stamp = selectedStampElement ? selectedStampElement.value : "";
+    
+	    if (!content) return alert("内容を入力してください");
 
-            const { data: { user } } = await mySupabase.auth.getUser();
+	    const { data: { user } } = await mySupabase.auth.getUser();
 
-            const { error } = await mySupabase.from('entries').insert([{ 
-                content: content, 
-                stamp: stamp, 
-                user_id: user.id 
-            }]);
+	    // --- ここからが「デジタル指紋」の作成 ---
+	    // 日本時間を取得して「文字」にする
+	    const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false }).replace(/\//g, "-");
+    
+	    // 材料（時間、ユーザーID、本文、スタンプ）を混ぜて指紋を作る
+	    const hashInput = `${nowJst}-${user.id}-${content}-${stamp}`;
+	    const digitalFingerprint = await generateHash(hashInput);
+	    // --------------------------------------
 
-            if (error) {
-                alert("保存エラー: " + error.message);
-            } else {
-                document.getElementById('content').value = '';
-                // 保存したらスタンプを「なし(空文字)」に戻す
-                const noneStamp = document.querySelector('input[name="stamp"][value=""]');
-                if (noneStamp) noneStamp.checked = true;
-                loadEntries();
-            }
-        };
+	    const { error } = await mySupabase.from('entries').insert([{ 
+	        content: content, 
+	        stamp: stamp, 
+	        user_id: user.id,
+	        display_time: nowJst,       // 確定した日本時間
+	        hash: digitalFingerprint    // デジタル指紋
+	    }]);
+
+	    if (error) {
+	        alert("保存エラー: " + error.message);
+	    } else {
+	        document.getElementById('content').value = '';
+	        const noneStamp = document.querySelector('input[name="stamp"][value=""]');
+	        if (noneStamp) noneStamp.checked = true;
+	        loadEntries();
+	    }
+	};
+
 
         // --- 削除 ---
         window.deleteEntry = async (id) => {
