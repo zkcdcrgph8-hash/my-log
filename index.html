@@ -288,37 +288,36 @@ async function loadEntries() {
         document.getElementById('count-med').innerText = counts["💊"];
 
         // --- HTML表示 ---
-        if (data.length === 0) {
-            container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">データが見つかりません</p>';
-        } else {
-            container.innerHTML = data.map(e => {
-                // XSS対策：HTMLエスケープ処理
-                const safeContent = e.content
-                    .replace(/&/g, "&amp;")
-                    .replace(/</g, "&lt;")
-                    .replace(/>/g, "&gt;")
-                    .replace(/"/g, "&quot;")
-                    .replace(/'/g, "&#039;")
-                    .replace(/\n/g, '<br>');
+if (data.length === 0) {
+    container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">データが見つかりません</p>';
+} else {
+    container.innerHTML = data.map(e => {
+        // XSS対策：HTMLエスケープ処理
+        const safeContent = e.content
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;")
+            .replace(/\n/g, '<br>');
 
-                return `
-                    // --- loadEntries関数内の return 部分をこれに差し替え ---
-return `
-    <div class="entry" style="position: relative; padding-bottom: 35px;">
-        <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
-        <div style="display: flex; align-items: flex-start; gap: 10px;">
-            <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
-            <div style="flex: 1;">
-                <div style="margin-bottom: 5px; word-break: break-all;">${safeContent}</div>
-                <small style="color: #999;">確定時刻: ${e.display_time || '---'}</small>
+        // ↓ ここからが return 文の修正箇所です
+        return `
+            <div class="entry" style="position: relative; padding-bottom: 35px;">
+                <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
+                <div style="display: flex; align-items: flex-start; gap: 10px;">
+                    <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
+                    <div style="flex: 1;">
+                        <div style="margin-bottom: 5px; word-break: break-all;">${safeContent}</div>
+                        <small style="color: #999;">確定時刻: ${e.display_time || '---'}</small>
+                    </div>
+                </div>
+                <button onclick="showHash('${e.hash}')" style="position: absolute; bottom: 8px; right: 8px; width: auto; padding: 4px 10px; font-size: 11px; background: #eee; color: #555; border: 1px solid #ddd; border-radius: 4px; margin: 0; cursor: pointer;">#️⃣ Hashを確認</button>
             </div>
-        </div>
-        <button onclick="showHash('${e.hash}')" style="position: absolute; bottom: 8px; right: 8px; width: auto; padding: 4px 10px; font-size: 11px; background: #eee; color: #555; border: 1px solid #ddd; border-radius: 4px; margin: 0;">#️⃣ Hashを確認</button>
-    </div>
-`;
+        `;
+    }).join('');
+}
 
-            }).join('');
-        }
 
     } catch (err) {
         console.error("致命的なエラー:", err);
