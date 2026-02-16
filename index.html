@@ -66,6 +66,14 @@
 </div>
 
     <div id="auth-section" class="card hidden">
+	<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #f0f2f5; color: #333; border: 1px solid #ddd; border-radius: 50%; font-size: 20px;">🆔</button>
+        <h2 style="margin: 0;">My-Log</h2>
+    </div>
+    <button id="btn-logout" class="logout-btn">ログアウト</button>
+</div>
+
         <h2 style="text-align:center;">My-Log-DB</h2>
         <input type="email" id="email" placeholder="メールアドレス">
         <input type="password" id="password" placeholder="パスワード">
@@ -454,6 +462,37 @@ function playBeep() {
     } catch (e) { console.log("音の再生に失敗しました（ブラウザ設定による）"); }
 }
 
+// ユーザーID用QR生成器の変数
+let idQrGenerator = null;
+
+// ID画面を表示する
+window.showUserId = async () => {
+    const { data: { user } } = await mySupabase.auth.getUser();
+    if (!user) return alert("ログインが必要です");
+
+    const userId = user.id;
+    const modal = document.getElementById('id-modal');
+    const qrContainer = document.getElementById('id-qrcode-container');
+    const idText = document.getElementById('display-user-id');
+
+    idText.innerText = userId;
+    qrContainer.innerHTML = ''; // リセット
+    modal.style.display = 'flex';
+
+    // ユーザーIDをQRコード化
+    idQrGenerator = new QRCode(qrContainer, {
+        text: userId,
+        width: 180,
+        height: 180,
+        correctLevel : QRCode.CorrectLevel.M
+    });
+};
+
+// ID画面を閉じる
+window.closeIdModal = () => {
+    document.getElementById('id-modal').style.display = 'none';
+};
+
 // スキャン開始ボタンが押された時
 document.getElementById('btn-scan-start').onclick = () => {
     document.getElementById('scan-modal').style.display = 'flex';
@@ -525,6 +564,20 @@ async function stopScan() {
     </div>
 </div>
 
+<div id="id-modal" onclick="closeIdModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; justify-content:center; align-items:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center;">
+        <h3 style="margin-top:0; color:#333;">My User ID</h3>
+        
+        <div id="id-qrcode-container" style="display:flex; justify-content:center; margin:20px 0;"></div>
+        
+        <div style="background:#f8f9fa; padding:12px; border-radius:10px; border:1px dashed #ccc;">
+            <small style="color:#888; display:block; margin-bottom:5px;">あなたの固有ID</small>
+            <code id="display-user-id" style="font-family:monospace; font-size:13px; color:#007bff; word-break:break-all;"></code>
+        </div>
+
+        <button onclick="closeIdModal()" style="margin-top:20px; background:#666; color:white; width:100%; padding:12px; border-radius:8px; border:none; font-weight:bold;">閉じる</button>
+    </div>
+</div>
 
 <div id="scan-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; flex-direction:column; align-items:center; justify-content:center;">
     <div id="reader" style="width:300px; background:white; border-radius:10px; overflow:hidden;"></div>
