@@ -229,8 +229,17 @@
         const searchTerm = document.getElementById('search').value;
         const dateTerm = document.getElementById('date-search').value;
 
-        let query = mySupabase.from('entries').select('*').eq('user_id', user.id);
-        if (searchTerm) query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
+                let query = mySupabase.from('entries').select('*').eq('user_id', user.id);
+        
+        if (searchTerm) {
+            // 文字列がハッシュ（64文字）っぽい場合はハッシュで完全一致検索、それ以外は部分一致検索
+            if (searchTerm.length === 64) {
+                query = query.eq('hash', searchTerm);
+            } else {
+                query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
+            }
+        }
+
         if (dateTerm) query = query.gte('created_at', `${dateTerm}T00:00:00+09:00`).lte('created_at', `${dateTerm}T23:59:59+09:00`);
 
         const { data, error } = await query.order('created_at', { ascending: false });
@@ -285,13 +294,28 @@
 
     window.closeIdModal = () => document.getElementById('id-modal').style.display = 'none';
 
-    window.showHash = async (hash) => {
+        window.showHash = async (hash) => {
+        // 本文ハッシュ(hash)を使ってデータを取得
         const { data } = await mySupabase.from('entries').select('*').eq('hash', hash).single();
-        const targetData = data.proof_hash || "No Proof Data";
+        
+        const targetData = data.hash; // 表示対象を本文ハッシュに変更
         document.getElementById('qrcode-container').innerHTML = '';
         new QRCode(document.getElementById('qrcode-container'), { text: targetData, width: 200, height: 200 });
-        document.getElementById('qr-info').innerText = `PROOF HASH:\n${targetData}`;
+        
+        // HTMLの中身を「ハッシュ値 + コピーボタン」に書き換え
+        document.getElementById('qr-info').innerHTML = `
+            <div style="margin-bottom:8px;"><b>HASH (RECORD ID):</b></div>
+            <div id="hash-text" style="word-break:break-all; font-family:monospace; background:#eee; padding:5px; border-radius:4px;">${targetData}</div>
+            <button onclick="copyHash('${targetData}')" style="margin-top:10px; padding:8px; font-size:14px; background:#007bff;">📋 ハッシュ値をコピー</button>
+        `;
         document.getElementById('qr-modal').style.display = 'flex';
+    };
+
+    // コピー用の補助関数
+    window.copyHash = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+            alert("ハッシュ値をコピーしました！");
+        });
     };
 
     window.closeQr = () => document.getElementById('qr-modal').style.display = 'none';
