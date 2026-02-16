@@ -8,6 +8,9 @@
     
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 
+	<script src="https://unpkg.com/html5-qrcode"></script>
+
+
 	<style>
         body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; color: #333; }
         .hidden { display: none !important; }
@@ -122,6 +125,12 @@
         <div>🛁 <span id="count-bath">0</span></div>
         <div>💊 <span id="count-med">0</span></div>
     </div>
+
+<div class="card" style="text-align:center; background:#f8f9fa;">
+    <button id="btn-scan-start" style="background:#6f42c1; font-weight:bold; width: auto; padding: 12px 30px;">
+        📷 記録を検証する（カメラ起動）
+    </button>
+</div>
 
     <div id="entries-container"></div>
 
@@ -425,6 +434,86 @@ window.closeQr = () => {
     document.getElementById('qr-modal').style.display = 'none';
 };
 
+let html5QrCode = null;
+
+// 「ピコン！」音をその場で作って鳴らす
+function playBeep() {
+    try {
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        const oscillator = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        oscillator.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+        oscillator.type = 'sine';
+        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 「ラ」の音
+        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
+        gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
+        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+        oscillator.start();
+        oscillator.stop(audioCtx.currentTime + 0.3);
+    } catch (e) { console.log("音の再生に失敗しました（ブラウザ設定による）"); }
+}
+
+// スキャン開始ボタンが押された時
+document.getElementById('btn-scan-start').onclick = () => {
+    document.getElementById('scan-modal').style.display = 'flex';
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    
+    // 背面カメラ（environment）で起動
+    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
+    .catch(err => {
+        alert("カメラの起動に失敗しました: " + err);
+        stopScan();
+    });
+};
+
+// スキャンに成功した時
+async function onScanSuccess(decodedText) {
+    // すぐにカメラを止める
+    await stopScan();
+    
+    // DBにそのハッシュが存在するかチェック
+    const { data, error } = await mySupabase.from('entries')
+        .select('*')
+        .eq('proof_hash', decodedText)
+        .single();
+
+    if (data) {
+        // 音を鳴らす
+        playBeep();
+        
+        // 成功画面に詳細をセット
+        const successEl = document.getElementById('verify-success');
+        document.getElementById('verify-detail').innerHTML = `
+            <div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:5px;"><b>検証データ詳細</b></div>
+            <b>確定時刻:</b> ${data.display_time}<br>
+            <b>作成者ID:</b> ${data.user_id.substring(0,8)}...<br>
+            <b>スタンプ:</b> ${data.stamp || 'なし'}<br>
+            <b>本文ハッシュ:</b> ${data.hash.substring(0,12)}...
+        `;
+        
+        // 成功画面を表示
+        successEl.style.display = 'flex';
+        
+        // 4秒後に自動で閉じる
+        setTimeout(() => {
+            successEl.style.display = 'none';
+        }, 4000);
+    } else {
+        alert("⚠️ 未登録のQRコードです。記録の正当性を確認できません。");
+    }
+}
+
+// カメラを止める処理
+async function stopScan() {
+    if (html5QrCode && html5QrCode.isScanning) {
+        await html5QrCode.stop();
+        html5QrCode = null;
+    }
+    document.getElementById('scan-modal').style.display = 'none';
+}
+
     </script>
 
 	<div id="qr-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
@@ -435,6 +524,19 @@ window.closeQr = () => {
         <div id="qr-info" style="font-size:12px; text-align:left; color:#555; background:#f9f9f9; padding:10px; border-radius:8px; word-break:break-all;"></div>
     </div>
 </div>
+
+<div id="scan-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; flex-direction:column; align-items:center; justify-content:center;">
+    <div id="reader" style="width:300px; background:white; border-radius:10px; overflow:hidden;"></div>
+    <button onclick="stopScan()" style="margin-top:20px; background:#dc3545; width:auto; padding:10px 20px; color:white; border-radius:8px; border:none; font-weight:bold;">スキャンを中止</button>
+</div>
+
+<div id="verify-success" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(40,167,69,0.9); z-index:3000; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center;">
+    <div style="font-size:100px; margin-bottom:10px;">✅</div>
+    <h2 style="font-size:32px; letter-spacing:5px;">VERIFIED</h2>
+    <p style="margin-bottom:20px;">この記録は本物です</p>
+    <div id="verify-detail" style="background:rgba(255,255,255,0.2); padding:20px; border-radius:12px; text-align:left; font-size:14px; min-width:250px;"></div>
+</div>
+
 
 </body>
 </html>
