@@ -381,13 +381,12 @@ window.showHash = async (hash) => {
         return;
     }
 
-    // 2. QRコードに込める情報の作成
-    // 改行区切りで、ご希望の4要素をまとめます
+    // 2. QRコードに込める情報の作成（スリム化案）
     const qrData = [
-        `Time: ${data.display_time}`,
-        `UID-Hash: ${data.user_id}`, // 将来的にここをハッシュ化IDにする
-        `Stamp: ${data.stamp || '📝'}`,
-        `Content-Hash: ${data.hash}`
+        `T: ${data.display_time}`,
+        `U: ${data.user_id.substring(0, 8)}`, // IDを最初の8文字だけに削る
+        `S: ${data.stamp || '📝'}`,
+        `H: ${data.hash}`
     ].join('\n');
 
     // 3. 画面の表示
