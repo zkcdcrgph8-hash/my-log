@@ -193,42 +193,44 @@
             await mySupabase.auth.signOut();
         };
 
-        // --- 記録の保存 (修正済) ---
-        document.getElementById('btn-save').onclick = async () => {
-	    const content = document.getElementById('content').value;
-	    const selectedStampElement = document.querySelector('input[name="stamp"]:checked');
-	    const stamp = selectedStampElement ? selectedStampElement.value : "";
-    
-	    if (!content) return alert("内容を入力してください");
+        // --- 記録の保存部分を更新 ---
+document.getElementById('btn-save').onclick = async () => {
+    const content = document.getElementById('content').value;
+    const selectedStampElement = document.querySelector('input[name="stamp"]:checked');
+    const stamp = selectedStampElement ? selectedStampElement.value : "";
 
-	    const { data: { user } } = await mySupabase.auth.getUser();
+    if (!content) return alert("内容を入力してください");
 
-	    // --- ここからが「デジタル指紋」の作成 ---
-	    // 日本時間を取得して「文字」にする
-	    const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false }).replace(/\//g, "-");
-    
-	    // 材料（時間、ユーザーID、本文、スタンプ）を混ぜて指紋を作る
-	    const hashInput = `${nowJst}-${user.id}-${content}-${stamp}`;
-	    const digitalFingerprint = await generateHash(hashInput);
-	    // --------------------------------------
+    const { data: { user } } = await mySupabase.auth.getUser();
 
-	    const { error } = await mySupabase.from('entries').insert([{ 
-	        content: content, 
-	        stamp: stamp, 
-	        user_id: user.id,
-	        display_time: nowJst,       // 確定した日本時間
-	        hash: digitalFingerprint    // デジタル指紋
-	    }]);
+    // 1. 日本時間
+    const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false }).replace(/\//g, "-");
 
-	    if (error) {
-	        alert("保存エラー: " + error.message);
-	    } else {
-	        document.getElementById('content').value = '';
-	        const noneStamp = document.querySelector('input[name="stamp"][value=""]');
-	        if (noneStamp) noneStamp.checked = true;
-	        loadEntries();
-	    }
-	};
+    // 2. 本文のハッシュ（単体）
+    const hashInput = `${nowJst}-${user.id}-${content}-${stamp}`;
+    const digitalFingerprint = await generateHash(hashInput);
+
+    // ★ 3. 統合ハッシュ（証明用：日時・ID・スタンプ・本文ハッシュを合体）
+    const proofInput = `${nowJst}-${user.id}-${stamp}-${digitalFingerprint}`;
+    const proofHash = await generateHash(proofInput);
+
+    const { error } = await mySupabase.from('entries').insert([{ 
+        content: content, 
+        stamp: stamp, 
+        user_id: user.id,
+        display_time: nowJst,
+        hash: digitalFingerprint,
+        proof_hash: proofHash // ★ 新しくこの列を追加
+    }]);
+
+    if (error) {
+        alert("保存エラー: " + error.message);
+    } else {
+        document.getElementById('content').value = '';
+        loadEntries();
+    }
+};
+
 
 
         // --- 削除 ---
@@ -381,31 +383,42 @@ window.showHash = async (hash) => {
         return;
     }
 
-    // 2. 「証明用統合ハッシュ」を作成する
-    // ①日時 ②ユーザーID ③スタンプ ④本文ハッシュ をガッチャンコ
-    const combinedData = `${data.display_time}-${data.user_id}-${data.stamp}-${data.hash}`;
-    const proofHash = await generateHash(combinedData); // これで64文字に固定！
+    // 2. 保存されている統合ハッシュ（proof_hash）をQRにする
+    // 万が一古いデータでproof_hashがない場合は、その場で生成
+    let targetQrData = data.proof_hash;
+    if (!targetQrData) {
+        const proofInput = `${data.display_time}-${data.user_id}-${data.stamp}-${data.hash}`;
+        targetQrData = await generateHash(proofInput);
+    }
 
-    // 3. QRコードにはこの「proofHash」だけを入れる
+    // 3. 表示
     document.getElementById('qr-modal').style.display = 'flex';
     document.getElementById('qrcode-container').innerHTML = ''; 
     
+    // 64文字固定なので、Level M でも余裕で収まります
     qrGenerator = new QRCode(document.getElementById('qrcode-container'), {
-        text: proofHash, // ここが64文字固定なのでエラーにならない
+        text: targetQrData,
         width: 200,
         height: 200,
+        colorDark : "#000000",
+        colorLight : "#ffffff",
         correctLevel : QRCode.CorrectLevel.M
     });
 
-    // 4. 画面上の説明テキスト
+    // 4. 情報表示
     document.getElementById('qr-info').innerHTML = `
-        <div style="border-bottom:1px solid #ddd; margin-bottom:5px; padding-bottom:5px;">
-            <b>記録の証明用ハッシュ (Proof Hash)</b>
+        <div style="border-bottom:1px solid #ddd; margin-bottom:5px; padding-bottom:5px; font-weight:bold; color:#333;">
+            🛡️ 統合証明ハッシュ
         </div>
-        <span style="font-family:monospace; font-size:11px;">${proofHash}</span>
-        <p style="font-size:10px; color:#666; margin-top:5px;">※このコードをスキャンすると、記録の正当性が検証されます。</p>
+        <div style="font-family:monospace; font-size:10px; color:#666; word-break:break-all;">
+            ${targetQrData}
+        </div>
+        <p style="font-size:10px; color:#999; margin-top:8px;">
+            このコードは「日時・ID・スタンプ・本文」を暗号学的に統合した唯一無二の指紋です。
+        </p>
     `;
 };
+
 
 // 閉じる関数
 window.closeQr = () => {
