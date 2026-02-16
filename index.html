@@ -302,21 +302,26 @@
         document.getElementById('scan-modal').style.display = 'none';
     }
 
-    async function onScanSuccess(decodedText) {
+        async function onScanSuccess(decodedText) {
         await stopScan();
         const { data } = await mySupabase.from('entries').select('*').eq('proof_hash', decodedText).single();
         if (data) {
             playBeep();
+            // --- ここで表示する内容をアップデート ---
             document.getElementById('verify-detail').innerHTML = `
                 <b>時刻:</b> ${data.display_time}<br>
+                <b>スタンプ:</b> ${data.stamp ? data.stamp : 'なし'}<br>
                 <b>ID:</b> ${data.user_id.substring(0,8)}...<br>
-                <b>本文ハッシュ:</b> ${data.hash.substring(0,10)}...
+                <div style="margin-top:5px; padding-top:5px; border-top:1px solid rgba(255,255,255,0.3); font-size:11px; opacity:0.8;">
+                    <b>本文ハッシュ:</b><br>${data.hash.substring(0,20)}...
+                </div>
             `;
             document.getElementById('verify-success').style.display = 'flex';
         } else {
             alert("⚠️ 未登録のQRです");
         }
     }
+
 </script>
 
 </body>
