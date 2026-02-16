@@ -65,60 +65,50 @@
     <p style="color: #666;">読み込み中...</p>
 </div>
 
-        <h2 style="text-align:center;">My-Log-DB</h2>
-        <input type="email" id="email" placeholder="メールアドレス">
-        <input type="password" id="password" placeholder="パスワード">
-        <button id="btn-login" class="secondary-btn">ログイン</button>
-        <button id="btn-signup">新規登録</button>
-        <p style="text-align:center; font-size: 14px;">
-            <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
-        </p>
-    </div>
+<div id="auth-section" class="card hidden">
+    <h2 style="text-align:center;">My-Log-DB</h2>
+    <input type="email" id="email" placeholder="メールアドレス">
+    <input type="password" id="password" placeholder="パスワード">
+    <button id="btn-login" class="secondary-btn">ログイン</button>
+    <button id="btn-signup">新規登録</button>
+    <p style="text-align:center; font-size: 14px;">
+        <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
+    </p>
+</div>
 
 <div id="main-section" class="hidden">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 10px;">
-            <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #f0f2f5; color: #333; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; cursor: pointer;">🆔</button>
+            <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; color: #333; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1);">🆔</button>
             <h2 style="margin: 0;">My-Log</h2>
         </div>
         <button id="btn-logout" class="logout-btn">ログアウト</button>
     </div>
 
-        <div class="card input-container" id="entry-card">
-    <div id="stamp-selector" style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
-        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="" checked><br><span style="font-size:20px;">📝</span><br><span style="font-size:10px; color:#666;">なし</span></label>
-        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🍽️"><br><span style="font-size:20px;">🍽️</span><br><span style="font-size:10px; color:#666;">食事</span></label>
-        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
-        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
-        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
-        <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">服薬</span></label>
-    </div>
-
-    <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
-    
-    <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
-</div>
-
-
-<div style="display: flex; gap: 8px; margin-bottom: 20px; align-items: stretch;">
-    <div style="position: relative; flex: 1;">
-        <input type="text" id="search" class="search-box" style="width: 100%; margin: 0; padding-left: 35px; height: 46px;" placeholder="検索..." oninput="loadEntries()">
-        <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">🔍</span>
-    </div>
-
-    <div style="position: relative; width: 50px; height: 46px; overflow: hidden; border-radius: 6px;">
-        <div id="btn-calendar-visual" style="width: 100%; height: 100%; background: white; border: 1px solid #ddd; font-size: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">
-            🗓️
+    <div class="card input-container" id="entry-card">
+        <div id="stamp-selector" style="display: flex; justify-content: space-around; align-items: flex-end; margin-bottom: 20px; padding: 10px; background: #f8f9fa; border-radius: 10px; border: 1px solid #eee;">
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="" checked><br><span style="font-size:20px;">📝</span><br><span style="font-size:10px; color:#666;">なし</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🍽️"><br><span style="font-size:20px;">🍽️</span><br><span style="font-size:10px; color:#666;">食事</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="☀️"><br><span style="font-size:20px;">☀️</span><br><span style="font-size:10px; color:#666;">起床</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💤"><br><span style="font-size:20px;">💤</span><br><span style="font-size:10px; color:#666;">睡眠</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="🛁"><br><span style="font-size:20px;">🛁</span><br><span style="font-size:10px; color:#666;">入浴</span></label>
+            <label style="text-align:center; cursor:pointer; flex:1;"><input type="radio" name="stamp" value="💊"><br><span style="font-size:20px;">💊</span><br><span style="font-size:10px; color:#666;">服薬</span></label>
         </div>
-        <input type="date" id="date-search" onchange="loadEntries();" 
-            style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
+        <textarea id="content" placeholder="今日はどんな一日だった？" style="width: 100%; box-sizing: border-box; min-height: 120px; padding: 12px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; margin-bottom: 10px;"></textarea>
+        <button id="btn-save" style="width: 100%; padding: 15px; background-color: #007bff; color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: bold; cursor: pointer;">記録する</button>
     </div>
 
-    <button onclick="clearSearch()" style="width: 50px; height: 46px; margin: 0; background: #666; color: white; border: none; font-size: 18px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center; position: relative; z-index: 10;">
-        🔄
-    </button>
-</div>
-
+    <div style="display: flex; gap: 8px; margin-bottom: 20px; align-items: stretch;">
+        <div style="position: relative; flex: 1;">
+            <input type="text" id="search" class="search-box" style="width: 100%; margin: 0; padding-left: 35px; height: 46px;" placeholder="検索..." oninput="loadEntries()">
+            <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%);">🔍</span>
+        </div>
+        <div style="position: relative; width: 50px; height: 46px; overflow: hidden; border-radius: 6px;">
+            <div id="btn-calendar-visual" style="width: 100%; height: 100%; background: white; border: 1px solid #ddd; font-size: 20px; border-radius: 6px; display: flex; align-items: center; justify-content: center;">🗓️</div>
+            <input type="date" id="date-search" onchange="loadEntries();" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
+        </div>
+        <button onclick="clearSearch()" style="width: 50px; height: 46px; margin: 0; background: #666; color: white; border: none; font-size: 18px; border-radius: 6px; cursor: pointer; display: flex; align-items: center; justify-content: center;">🔄</button>
+    </div>
 
     <div id="stats-panel" style="margin: 20px 0; padding: 15px; background: #fff; border-radius: 10px; border: 1px solid #e0e0e0; display: flex; justify-content: space-around; font-size: 14px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
         <div>🍽️ <span id="count-meal">0</span></div>
@@ -128,432 +118,18 @@
         <div>💊 <span id="count-med">0</span></div>
     </div>
 
-<div class="card" style="text-align:center; background:#f8f9fa;">
-    <button id="btn-scan-start" style="background:#6f42c1; font-weight:bold; width: auto; padding: 12px 30px;">
-        📷 記録を検証する（カメラ起動）
-    </button>
-</div>
-
-    <div id="entries-container"></div>
-
+    <div class="card" style="text-align:center; background:#f8f9fa;">
+        <button id="btn-scan-start" style="background:#6f42c1; font-weight:bold; width: auto; padding: 12px 30px;">📷 記録を検証する（カメラ起動）</button>
     </div>
 
-    <script>
+    <div id="entries-container"></div>
+</div>
 
-	// 【部品】文字列をハッシュに変える魔法の関数（そのまま貼るだけ！）
-	async function generateHash(text) {
-	    const msgUint8 = new TextEncoder().encode(text);
-	    const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
-	    const hashArray = Array.from(new Uint8Array(hashBuffer));
-	    return hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
-	}
-
-
-        const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
-        const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
-        const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        const authSection = document.getElementById('auth-section');
-        const mainSection = document.getElementById('main-section');
-	const loadingScreen = document.getElementById('loading-screen');
-
-        // --- 状態監視 ---
-        mySupabase.auth.onAuthStateChange(async (event, session) => {
-        
-	loadingScreen.classList.add('hidden');
-    
-	if (session) {
-                authSection.classList.add('hidden');
-                mainSection.classList.remove('hidden');
-                loadEntries();
-            } else {
-                authSection.classList.remove('hidden');
-                mainSection.classList.add('hidden');
-            }
-        });
-
-        // --- パスワードリセット ---
-        document.getElementById('link-reset').onclick = async (e) => {
-            e.preventDefault();
-            const email = document.getElementById('email').value;
-            if (!email) return alert("メールアドレスを入力してください");
-            const { error } = await mySupabase.auth.resetPasswordForEmail(email, {
-                redirectTo: 'https://zkcdcrgph8-hash.github.io/my-log/reset.html',
-            });
-            if (error) alert(error.message);
-            else alert("再設定メールを送信しました！");
-        };
-
-        // --- 登録・ログイン・ログアウト ---
-        document.getElementById('btn-signup').onclick = async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await mySupabase.auth.signUp({ email, password });
-            if (error) alert(error.message);
-            else alert("登録完了！確認メールをチェックしてください。");
-        };
-
-        document.getElementById('btn-login').onclick = async () => {
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const { error } = await mySupabase.auth.signInWithPassword({ email, password });
-            if (error) alert(error.message);
-        };
-
-        document.getElementById('btn-logout').onclick = async () => {
-            await mySupabase.auth.signOut();
-        };
-
-        // --- 記録の保存部分を更新 ---
-document.getElementById('btn-save').onclick = async () => {
-    const content = document.getElementById('content').value;
-    const selectedStampElement = document.querySelector('input[name="stamp"]:checked');
-    const stamp = selectedStampElement ? selectedStampElement.value : "";
-
-    if (!content) return alert("内容を入力してください");
-
-    const { data: { user } } = await mySupabase.auth.getUser();
-
-    // 1. 日本時間
-    const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false }).replace(/\//g, "-");
-
-    // 2. 本文のハッシュ（単体）
-    const hashInput = `${nowJst}-${user.id}-${content}-${stamp}`;
-    const digitalFingerprint = await generateHash(hashInput);
-
-    // ★ 3. 統合ハッシュ（証明用：日時・ID・スタンプ・本文ハッシュを合体）
-    const proofInput = `${nowJst}-${user.id}-${stamp}-${digitalFingerprint}`;
-    const proofHash = await generateHash(proofInput);
-
-    const { error } = await mySupabase.from('entries').insert([{ 
-        content: content, 
-        stamp: stamp, 
-        user_id: user.id,
-        display_time: nowJst,
-        hash: digitalFingerprint,
-        proof_hash: proofHash // ★ 新しくこの列を追加
-    }]);
-
-    if (error) {
-        alert("保存エラー: " + error.message);
-    } else {
-        document.getElementById('content').value = '';
-        loadEntries();
-    }
-};
-
-
-
-        // --- 削除 ---
-        window.deleteEntry = async (id) => {
-            if (!confirm("削除しますか？")) return;
-            const { error } = await mySupabase.from('entries').delete().eq('id', id);
-            if (error) alert(error.message);
-            else loadEntries();
-        };
-
-// --- 一覧表示と統計 ---
-async function loadEntries() {
-    const container = document.getElementById('entries-container');
-    const searchTerm = document.getElementById('search').value;
-    const dateTerm = document.getElementById('date-search').value; 
-    
-    try {
-        // 1. ユーザー情報の取得（通信失敗の可能性がある最初の関門）
-        const { data: { user }, error: authError } = await mySupabase.auth.getUser();
-        if (authError) throw authError;
-        if (!user) return;
-
-        // UIの更新（カレンダーボタンの色）
-        const calBtn = document.getElementById('btn-calendar-visual');
-        if (calBtn) {
-            calBtn.style.background = dateTerm ? '#e7f3ff' : 'white';
-            calBtn.style.borderColor = dateTerm ? '#007bff' : '#ddd';
-        }
-
-        // 2. クエリの構築
-        let query = mySupabase.from('entries').select('*').eq('user_id', user.id);
-
-        if (searchTerm) {
-            query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
-        }
-        if (dateTerm) {
-            query = query.gte('created_at', `${dateTerm}T00:00:00+09:00`)
-                         .lte('created_at', `${dateTerm}T23:59:59+09:00`);
-        }
-
-        // 3. データ取得の実行
-        const { data, error } = await query.order('created_at', { ascending: false });
-
-        // ネットワークエラーやタイムアウト、サーバーエラーのハンドリング
-        if (error) throw error;
-        if (!data) throw new Error("データが取得できませんでした");
-
-        // --- 統計処理 ---
-        const counts = { "🍽️": 0, "☀️": 0, "💤": 0, "🛁": 0, "💊": 0 };
-        data.forEach(e => {
-            if (e.stamp && counts.hasOwnProperty(e.stamp)) {
-                counts[e.stamp]++;
-            }
-        });
-
-        document.getElementById('count-meal').innerText = counts["🍽️"];
-        document.getElementById('count-active').innerText = counts["☀️"];
-        document.getElementById('count-sleep').innerText = counts["💤"];
-        document.getElementById('count-bath').innerText = counts["🛁"];
-        document.getElementById('count-med').innerText = counts["💊"];
-
-        // --- HTML表示 ---
-if (data.length === 0) {
-    container.innerHTML = '<p style="text-align:center; color:#999; margin-top:20px;">データが見つかりません</p>';
-} else {
-    container.innerHTML = data.map(e => {
-        // XSS対策：HTMLエスケープ処理
-        const safeContent = e.content
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;")
-            .replace(/"/g, "&quot;")
-            .replace(/'/g, "&#039;")
-            .replace(/\n/g, '<br>');
-
-        // ↓ ここからが return 文の修正箇所です
-        return `
-            <div class="entry" style="position: relative; padding-bottom: 35px;">
-                <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
-                <div style="display: flex; align-items: flex-start; gap: 10px;">
-                    <div style="font-size: 24px;">${e.stamp ? e.stamp : '📝'}</div>
-                    <div style="flex: 1;">
-                        <div style="margin-bottom: 5px; word-break: break-all;">${safeContent}</div>
-                        <small style="color: #999;">確定時刻: ${e.display_time || '---'}</small>
-                    </div>
-                </div>
-                        <button onclick="showHash('${e.hash}')" 
-            style="position: absolute; bottom: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; cursor: pointer;"
-            onmouseover="this.style.color='#007bff'" 
-            onmouseout="this.style.color='#ccc'">#️⃣</button>
-            </div>
-        `;
-    }).join('');
-}
-
-
-    } catch (err) {
-        console.error("致命的なエラー:", err);
-        container.innerHTML = `
-            <div style="text-align:center; padding: 20px; color: #dc3545;">
-                <p>⚠️ 通信エラーが発生しました</p>
-                <button onclick="loadEntries()" style="width: auto; padding: 8px 15px; font-size: 14px;">再試行</button>
-            </div>
-        `;
-    }
-}
-
-
-// 検索リセット関数
-function clearSearch() {
-    document.getElementById('search').value = '';
-    document.getElementById('date-search').value = '';
-    loadEntries(); // 全件表示に戻す
-}
-
-// --- スマホ入力時のレイアウト調整（最新版） ---
-const contentArea = document.getElementById('content');
-const entryCard = document.getElementById('entry-card');
-
-if (contentArea && entryCard) {
-    // 1. フォーカスした時：クラスを追加してボタンを上に逃がす
-    contentArea.addEventListener('focus', () => {
-        if (window.innerWidth < 600) {
-            entryCard.classList.add('input-focused');
-            // スムーズに表示位置を調整
-            setTimeout(() => {
-                entryCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 300);
-        }
-    });
-
-    // 2. フォーカスが外れた時：【ここが重要】0.2秒待ってから戻す！
-    contentArea.addEventListener('blur', () => {
-        setTimeout(() => {
-            entryCard.classList.remove('input-focused');
-        }, 200); // この0.2秒の猶予が「空振り」を防ぎます
-    });
-}
-
-// --- ハッシュをポップアップで表示する機能 ---
-// QRコード生成用の変数
-let qrGenerator = null;
-
-window.showHash = async (hash) => {
-    // 1. Supabaseからデータを取得
-    const { data, error } = await mySupabase.from('entries').select('*').eq('hash', hash).single();
-    
-    if (error || !data) {
-        alert("データの取得に失敗しました。");
-        return;
-    }
-
-    // 2. 保存されている統合ハッシュ（proof_hash）をQRにする
-    // 万が一古いデータでproof_hashがない場合は、その場で生成
-    let targetQrData = data.proof_hash;
-    if (!targetQrData) {
-        const proofInput = `${data.display_time}-${data.user_id}-${data.stamp}-${data.hash}`;
-        targetQrData = await generateHash(proofInput);
-    }
-
-    // 3. 表示
-    document.getElementById('qr-modal').style.display = 'flex';
-    document.getElementById('qrcode-container').innerHTML = ''; 
-    
-    // 64文字固定なので、Level M でも余裕で収まります
-    qrGenerator = new QRCode(document.getElementById('qrcode-container'), {
-        text: targetQrData,
-        width: 200,
-        height: 200,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        correctLevel : QRCode.CorrectLevel.M
-    });
-
-    // 4. 情報表示
-    document.getElementById('qr-info').innerHTML = `
-        <div style="border-bottom:1px solid #ddd; margin-bottom:5px; padding-bottom:5px; font-weight:bold; color:#333;">
-            🛡️ 統合証明ハッシュ
-        </div>
-        <div style="font-family:monospace; font-size:10px; color:#666; word-break:break-all;">
-            ${targetQrData}
-        </div>
-        <p style="font-size:10px; color:#999; margin-top:8px;">
-            このコードは「日時・ID・スタンプ・本文」を暗号学的に統合した唯一無二の指紋です。
-        </p>
-    `;
-};
-
-
-// 閉じる関数
-window.closeQr = () => {
-    document.getElementById('qr-modal').style.display = 'none';
-};
-
-let html5QrCode = null;
-
-// 「ピコン！」音をその場で作って鳴らす
-function playBeep() {
-    try {
-        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-        const oscillator = audioCtx.createOscillator();
-        const gainNode = audioCtx.createGain();
-        oscillator.connect(gainNode);
-        gainNode.connect(audioCtx.destination);
-        oscillator.type = 'sine';
-        oscillator.frequency.setValueAtTime(880, audioCtx.currentTime); // 「ラ」の音
-        gainNode.gain.setValueAtTime(0, audioCtx.currentTime);
-        gainNode.gain.linearRampToValueAtTime(0.2, audioCtx.currentTime + 0.05);
-        gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
-        oscillator.start();
-        oscillator.stop(audioCtx.currentTime + 0.3);
-    } catch (e) { console.log("音の再生に失敗しました（ブラウザ設定による）"); }
-}
-
-// ユーザーID用QR生成器の変数
-let idQrGenerator = null;
-
-// ID画面を表示する
-window.showUserId = async () => {
-    const { data: { user } } = await mySupabase.auth.getUser();
-    if (!user) return alert("ログインが必要です");
-
-    const userId = user.id;
-    const modal = document.getElementById('id-modal');
-    const qrContainer = document.getElementById('id-qrcode-container');
-    const idText = document.getElementById('display-user-id');
-
-    idText.innerText = userId;
-    qrContainer.innerHTML = ''; // リセット
-    modal.style.display = 'flex';
-
-    // ユーザーIDをQRコード化
-    idQrGenerator = new QRCode(qrContainer, {
-        text: userId,
-        width: 180,
-        height: 180,
-        correctLevel : QRCode.CorrectLevel.M
-    });
-};
-
-// ID画面を閉じる
-window.closeIdModal = () => {
-    document.getElementById('id-modal').style.display = 'none';
-};
-
-// スキャン開始ボタンが押された時
-document.getElementById('btn-scan-start').onclick = () => {
-    document.getElementById('scan-modal').style.display = 'flex';
-    html5QrCode = new Html5Qrcode("reader");
-    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
-    
-    // 背面カメラ（environment）で起動
-    html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess)
-    .catch(err => {
-        alert("カメラの起動に失敗しました: " + err);
-        stopScan();
-    });
-};
-
-// スキャンに成功した時
-async function onScanSuccess(decodedText) {
-    // すぐにカメラを止める
-    await stopScan();
-    
-    // DBにそのハッシュが存在するかチェック
-    const { data, error } = await mySupabase.from('entries')
-        .select('*')
-        .eq('proof_hash', decodedText)
-        .single();
-
-    if (data) {
-        // 音を鳴らす
-        playBeep();
-        
-        // 成功画面に詳細をセット
-        const successEl = document.getElementById('verify-success');
-        document.getElementById('verify-detail').innerHTML = `
-            <div style="margin-bottom:8px; border-bottom:1px solid rgba(255,255,255,0.3); padding-bottom:5px;"><b>検証データ詳細</b></div>
-            <b>確定時刻:</b> ${data.display_time}<br>
-            <b>作成者ID:</b> ${data.user_id.substring(0,8)}...<br>
-            <b>スタンプ:</b> ${data.stamp || 'なし'}<br>
-            <b>本文ハッシュ:</b> ${data.hash.substring(0,12)}...
-        `;
-        
-        // 成功画面を表示
-        successEl.style.display = 'flex';
-        
-    } else {
-        alert("⚠️ 未登録のQRコードです。記録の正当性を確認できません。");
-    }
-}
-
-// カメラを止める処理
-async function stopScan() {
-    if (html5QrCode && html5QrCode.isScanning) {
-        await html5QrCode.stop();
-        html5QrCode = null;
-    }
-    document.getElementById('scan-modal').style.display = 'none';
-}
-
-    </script>
-
-	<div id="qr-modal" onclick="closeQr()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+<div id="qr-modal" onclick="closeQr()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:20px; border-radius:15px; width:90%; max-width:350px; text-align:center; position:relative;">
-        
         <h3 style="margin-top:0; font-size:16px;">デジタル証明用QRコード</h3>
-        
         <div id="qrcode-container" style="display:flex; justify-content:center; margin:20px 0;"></div>
-        
         <div id="qr-info" style="font-size:12px; text-align:left; color:#555; background:#f9f9f9; padding:10px; border-radius:8px; word-break:break-all;"></div>
-        
         <button onclick="closeQr()" style="margin-top:20px; background:#666; color:white; width:100%; padding:12px; border-radius:8px; border:none; font-weight:bold;">画面を閉じる</button>
     </div>
 </div>
@@ -561,14 +137,11 @@ async function stopScan() {
 <div id="id-modal" onclick="closeIdModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center;">
         <h3 style="margin-top:0; color:#333;">My User ID</h3>
-        
         <div id="id-qrcode-container" style="display:flex; justify-content:center; margin:20px 0;"></div>
-        
         <div style="background:#f8f9fa; padding:12px; border-radius:10px; border:1px dashed #ccc;">
             <small style="color:#888; display:block; margin-bottom:5px;">あなたの固有ID</small>
             <code id="display-user-id" style="font-family:monospace; font-size:13px; color:#007bff; word-break:break-all;"></code>
         </div>
-
         <button onclick="closeIdModal()" style="margin-top:20px; background:#666; color:white; width:100%; padding:12px; border-radius:8px; border:none; font-weight:bold;">閉じる</button>
     </div>
 </div>
@@ -579,18 +152,13 @@ async function stopScan() {
 </div>
 
 <div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(40,167,69,0.95); z-index:3000; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; cursor:pointer; padding: 20px; box-sizing: border-box;">
-    
     <div style="font-size:100px; margin-bottom:10px;">✅</div>
-
+    <h2 style="font-size:32px; letter-spacing:5px; margin: 0 0 10px 0;">VERIFIED</h2>
+    <p style="margin-bottom:20px;">この記録は本物です</p>
+    <div id="verify-detail" style="background:rgba(255,255,255,0.2); padding:20px; border-radius:12px; text-align:left; font-size:14px; width:100%; max-width:300px; line-height:1.6; word-break:break-all;"></div>
     <p style="margin-top:30px; font-size:12px; opacity:0.8;">画面をタップして閉じる</p>
 </div>
 
-
-    <h2 style="font-size:32px; letter-spacing:5px;">VERIFIED</h2>
-    <p style="margin-bottom:20px;">この記録は本物です</p>
-    <div id="verify-detail" style="background:rgba(255,255,255,0.2); padding:20px; border-radius:12px; text-align:left; font-size:14px; min-width:250px;"></div>
-</div>
-
-
 </body>
+
 </html>
