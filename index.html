@@ -302,19 +302,22 @@
         document.getElementById('scan-modal').style.display = 'none';
     }
 
-            async function onScanSuccess(decodedText) {
+                async function onScanSuccess(decodedText) {
         await stopScan();
         const { data } = await mySupabase.from('entries').select('*').eq('proof_hash', decodedText).single();
         if (data) {
             playBeep();
+            // max-height と overflow-y を追加して、はみ出しを防ぎます
             document.getElementById('verify-detail').innerHTML = `
-                <b>時刻:</b> ${data.display_time}<br>
-                <b>スタンプ:</b> ${data.stamp ? data.stamp : 'なし'}<br>
-                <div style="margin-top:5px; word-break:break-all;">
-                    <b>作成者ID:</b><br>${data.user_id}
-                </div>
-                <div style="margin-top:10px; padding-top:5px; border-top:1px solid rgba(255,255,255,0.3); font-size:11px; opacity:0.8; word-break:break-all;">
-                    <b>本文ハッシュ:</b><br>${data.hash}
+                <div style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
+                    <b>時刻:</b> ${data.display_time}<br>
+                    <b>スタンプ:</b> ${data.stamp ? data.stamp : 'なし'}<br>
+                    <div style="margin-top:8px; word-break:break-all; background: rgba(255,255,255,0.1); padding: 5px; border-radius: 4px;">
+                        <b>作成者ID:</b><br>${data.user_id}
+                    </div>
+                    <div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.3); font-size:11px; opacity:0.9; word-break:break-all;">
+                        <b>本文ハッシュ:</b><br>${data.hash}
+                    </div>
                 </div>
             `;
             document.getElementById('verify-success').style.display = 'flex';
@@ -322,6 +325,7 @@
             alert("⚠️ 未登録のQRです");
         }
     }
+
 
 
 </script>
