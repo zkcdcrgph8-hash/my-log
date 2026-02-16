@@ -531,11 +531,18 @@ async function stopScan() {
     <button onclick="stopScan()" style="margin-top:20px; background:#dc3545; width:auto; padding:10px 20px; color:white; border-radius:8px; border:none; font-weight:bold;">スキャンを中止</button>
 </div>
 
-<div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(40,167,69,0.9); z-index:3000; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; cursor:pointer;">
+<div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(40,167,69,0.95); z-index:3000; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; cursor:pointer; padding: 20px; box-sizing: border-box;">
+    
     <div style="font-size:100px; margin-bottom:10px;">✅</div>
-    ...
-    <p style="font-size:12px; opacity:0.8; margin-top:20px;">画面をタップして閉じる</p>
+    <h2 style="font-size:32px; letter-spacing:5px; margin: 0 0 10px 0;">VERIFIED</h2>
+    <p style="margin-bottom:20px;">この記録は本物です</p>
+    
+    <div id="verify-detail" style="background:rgba(255,255,255,0.2); padding:20px; border-radius:12px; text-align:left; font-size:14px; width:100%; max-width:300px; line-height:1.6; word-break:break-all;">
+        </div>
+
+    <p style="margin-top:30px; font-size:12px; opacity:0.8;">画面をタップして閉じる</p>
 </div>
+
 
     <h2 style="font-size:32px; letter-spacing:5px;">VERIFIED</h2>
     <p style="margin-bottom:20px;">この記録は本物です</p>
