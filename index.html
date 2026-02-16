@@ -124,12 +124,19 @@
     <button onclick="stopScan()" style="margin-top:20px; background:#dc3545; width:auto; padding:10px 20px;">中止</button>
 </div>
 
-<div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(40,167,69,0.95); z-index:3000; flex-direction:column; align-items:center; justify-content:center; color:white; text-align:center; cursor:pointer; padding:20px;">
-    <div style="font-size:80px;">✅</div>
-    <h2>VERIFIED</h2>
-    <div id="verify-detail" style="background:rgba(255,255,255,0.2); padding:15px; border-radius:10px; text-align:left; font-size:13px; width:100%; max-width:300px;"></div>
-    <p style="margin-top:20px; font-size:12px;">タップで閉じる</p>
+<div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:350px; text-align:left; color:#333; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <div style="text-align:center; font-size:50px; margin-bottom:10px;">✅</div>
+        <h2 style="text-align:center; margin-top:0; color:#28a745;">VERIFIED</h2>
+        
+        <div id="verify-detail" style="font-size:13px; line-height:1.6;">
+            </div>
+        
+        <button onclick="document.getElementById('verify-success').style.display='none'" style="margin-top:20px; background:#666;">閉じる</button>
+    </div>
+    <p style="color:white; font-size:12px; margin-top:15px;">タップでも閉じます</p>
 </div>
+
 
 <script>
     // --- 初期設定 ---
@@ -302,22 +309,23 @@
         document.getElementById('scan-modal').style.display = 'none';
     }
 
-                async function onScanSuccess(decodedText) {
+                    async function onScanSuccess(decodedText) {
         await stopScan();
         const { data } = await mySupabase.from('entries').select('*').eq('proof_hash', decodedText).single();
         if (data) {
             playBeep();
-            // max-height と overflow-y を追加して、はみ出しを防ぎます
             document.getElementById('verify-detail').innerHTML = `
-                <div style="max-height: 250px; overflow-y: auto; padding-right: 5px;">
-                    <b>時刻:</b> ${data.display_time}<br>
-                    <b>スタンプ:</b> ${data.stamp ? data.stamp : 'なし'}<br>
-                    <div style="margin-top:8px; word-break:break-all; background: rgba(255,255,255,0.1); padding: 5px; border-radius: 4px;">
-                        <b>作成者ID:</b><br>${data.user_id}
-                    </div>
-                    <div style="margin-top:10px; padding-top:8px; border-top:1px solid rgba(255,255,255,0.3); font-size:11px; opacity:0.9; word-break:break-all;">
-                        <b>本文ハッシュ:</b><br>${data.hash}
-                    </div>
+                <p style="margin:5px 0;"><b>確定時刻:</b><br>${data.display_time}</p>
+                <p style="margin:5px 0;"><b>スタンプ:</b> ${data.stamp ? data.stamp : 'なし'}</p>
+                
+                <div style="margin-top:10px; padding:10px; background:#f0f2f5; border-radius:8px; word-break:break-all;">
+                    <b>作成者ID:</b><br>
+                    <code style="font-size:11px;">${data.user_id}</code>
+                </div>
+                
+                <div style="margin-top:10px; padding:10px; border-top:1px dashed #ccc; word-break:break-all; opacity:0.7;">
+                    <b>本文ハッシュ:</b><br>
+                    <code style="font-size:10px;">${data.hash}</code>
                 </div>
             `;
             document.getElementById('verify-success').style.display = 'flex';
@@ -325,8 +333,6 @@
             alert("⚠️ 未登録のQRです");
         }
     }
-
-
 
 </script>
 
