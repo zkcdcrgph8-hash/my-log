@@ -373,7 +373,7 @@ if (contentArea && entryCard) {
 let qrGenerator = null;
 
 window.showHash = async (hash) => {
-    // 1. Supabaseから最新のデータを取得（日時、ID、スタンプ、ハッシュを確認するため）
+    // 1. Supabaseからデータを取得
     const { data, error } = await mySupabase.from('entries').select('*').eq('hash', hash).single();
     
     if (error || !data) {
@@ -381,34 +381,29 @@ window.showHash = async (hash) => {
         return;
     }
 
-    // 2. QRコードに込める情報の作成（スリム化案）
-    const qrData = [
-        `T: ${data.display_time}`,
-        `U: ${data.user_id.substring(0, 8)}`, // IDを最初の8文字だけに削る
-        `S: ${data.stamp || '📝'}`,
-        `H: ${data.hash}`
-    ].join('\n');
+    // 2. 「証明用統合ハッシュ」を作成する
+    // ①日時 ②ユーザーID ③スタンプ ④本文ハッシュ をガッチャンコ
+    const combinedData = `${data.display_time}-${data.user_id}-${data.stamp}-${data.hash}`;
+    const proofHash = await generateHash(combinedData); // これで64文字に固定！
 
-    // 3. 画面の表示
+    // 3. QRコードにはこの「proofHash」だけを入れる
     document.getElementById('qr-modal').style.display = 'flex';
-    document.getElementById('qrcode-container').innerHTML = ''; // 一旦クリア
+    document.getElementById('qrcode-container').innerHTML = ''; 
     
-    // 4. QRコード生成（設定を緩和して容量を最大化）
     qrGenerator = new QRCode(document.getElementById('qrcode-container'), {
-        text: qrData,
+        text: proofHash, // ここが64文字固定なのでエラーにならない
         width: 200,
         height: 200,
-        colorDark : "#000000",
-        colorLight : "#ffffff",
-        // Level L は最も多くの文字を詰め込めます（最大2,953文字）
-        correctLevel : QRCode.CorrectLevel.L 
+        correctLevel : QRCode.CorrectLevel.M
     });
 
-    // 5. テキスト情報も下に表示しておく
+    // 4. 画面上の説明テキスト
     document.getElementById('qr-info').innerHTML = `
-        <b>時刻:</b> ${data.display_time}<br>
-        <b>スタンプ:</b> ${data.stamp || 'なし'}<br>
-        <b>ハッシュ:</b> <span style="font-family:monospace;">${data.hash.substring(0,16)}...</span>
+        <div style="border-bottom:1px solid #ddd; margin-bottom:5px; padding-bottom:5px;">
+            <b>記録の証明用ハッシュ (Proof Hash)</b>
+        </div>
+        <span style="font-family:monospace; font-size:11px;">${proofHash}</span>
+        <p style="font-size:10px; color:#666; margin-top:5px;">※このコードをスキャンすると、記録の正当性が検証されます。</p>
     `;
 };
 
