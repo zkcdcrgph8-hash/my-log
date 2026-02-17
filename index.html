@@ -269,6 +269,51 @@
         new QRCode(document.getElementById('id-qrcode-container'), { text: user.id, width: 160, height: 160 });
         document.getElementById('id-modal').style.display = 'flex';
     };
+
+    // 利用規約を表示する関数
+    window.showTerms = () => {
+        const terms = `【My-Log-DB 利用規約】
+
+第1条（自己責任）
+ユーザーは本サービスを自己の責任において利用するものとします。
+
+第2条（ハッシュ証明）
+本サービスが生成するハッシュ値は、記録時のデータの同一性を数学的に証明するものですが、法的証拠能力を保証するものではありません。
+
+第3条（削除と復元）
+1. ユーザーは自身の記録をいつでも削除できます。
+2. 一度削除されたデータは、理由を問わず一切復元できません。重要な記録は各自で管理してください。
+
+第4条（免責事項）
+システム障害やメンテナンスによるデータ消失やサービス停止について、当方は一切の責任を負いません。`;
+
+        document.getElementById('terms-title').innerText = "利用規約";
+        document.getElementById('terms-content').innerText = terms;
+        document.getElementById('terms-modal').style.display = 'flex';
+    };
+
+    // プライバシーポリシーを表示する関数（ついでに作っておきました）
+    window.showPrivacy = () => {
+        const privacy = `【プライバシーポリシー】
+
+1. データの収集
+本サービスは、アカウント管理のためにメールアドレスを、サービス提供のためにログ内容を収集します。
+
+2. データの利用
+収集したデータは、本サービスの提供およびユーザー管理以外の目的には利用しません。
+
+3. 第三者への提供
+法令に基づく場合を除き、ユーザーの同意なくデータを第三者に提供することはありません。
+
+4. 外部サービスの利用
+本サービスはバックエンドにSupabaseを利用しており、データは同社のインフラ上で安全に管理されます。`;
+
+        document.getElementById('terms-title').innerText = "プライバシーポリシー";
+        document.getElementById('terms-content').innerText = privacy;
+        document.getElementById('terms-modal').style.display = 'flex';
+    };
+
+
     window.closeIdModal = () => document.getElementById('id-modal').style.display = 'none';
 
     window.showHash = async (hash) => {
@@ -316,6 +361,14 @@
         } else { alert("⚠️ 未登録のハッシュです"); }
     }
 </script>
+
+<div id="terms-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:5000; justify-content:center; align-items:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto;">
+        <h3 style="margin-top:0;">利用規約</h3>
+        <div id="terms-content" style="font-size:13px; text-align:left; line-height:1.6; white-space:pre-wrap;"></div>
+        <button onclick="document.getElementById('terms-modal').style.display='none'" style="margin-top:20px; background:#666;">閉じる</button>
+    </div>
+</div>
 
 </body>
 </html>
