@@ -62,6 +62,15 @@
         <button id="btn-save">記録する</button>
     </div>
 
+	    <div style="display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px;">
+        <button onclick="setRange(0)" class="range-btn" id="range-0" style="background:#007bff; font-size:12px; padding:5px 10px; width:auto;">全期間</button>
+        <button onclick="setRange(7)" class="range-btn" id="range-7" style="background:#666; font-size:12px; padding:5px 10px; width:auto;">1w</button>
+        <button onclick="setRange(14)" class="range-btn" id="range-14" style="background:#666; font-size:12px; padding:5px 10px; width:auto;">2w</button>
+        <button onclick="setRange(21)" class="range-btn" id="range-21" style="background:#666; font-size:12px; padding:5px 10px; width:auto;">3w</button>
+        <button onclick="setRange(28)" class="range-btn" id="range-28" style="background:#666; font-size:12px; padding:5px 10px; width:auto;">4w</button>
+    </div>
+
+
         <div style="display: flex; gap: 10px; margin-bottom: 15px; align-items: stretch; height: 46px;">
         <div style="position: relative; flex: 1;">
             <input type="text" id="search" class="search-box" style="width: 100%; height: 100%; margin: 0; padding-left: 35px;" placeholder="検索..." oninput="loadEntries()">
@@ -135,6 +144,192 @@
     const authSection = document.getElementById('auth-section');
     const mainSection = document.getElementById('main-section');
     const loadingScreen = document.getElementById('loading-screen');
+
+	
+
+    async function generateHash(text) {
+        const msgUint8 = new TextEncoder().encode(text);
+        const hashBuffer = await crypto.subtle.digest('SHA-256', msgUint8);
+        return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
+    }
+
+    function playBeep() {
+        try {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            osc.connect(gain); gain.connect(ctx.destination);
+            osc.frequency.setValueAtTime(880, ctx.currentTime);
+            gain.gain.setValueAtTime(0, ctx.currentTime + 0.05);
+            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
+            osc.start(); osc.stop(ctx.currentTime + 0.3);
+        } catch(e) {}
+    }
+
+    mySupabase.auth.onAuthStateChange(async (event, session) => {
+        loadingScreen.classList.add('hidden');
+        if (session) { authSection.classList.add('hidden'); mainSection.classList.remove('hidden'); loadEntries(); }
+        else { authSection.classList.remove('hidden'); mainSection.classList.add('hidden'); }
+    });
+
+    document.getElementById('btn-login').onclick = async () => {
+        const { error } = await mySupabase.auth.signInWithPassword({ email: document.getElementById('email').value, password: document.getElementById('password').value });
+        if (error) alert(error.message);
+    };
+
+    document.getElementById('btn-signup').onclick = async () => {
+        const { error } = await mySupabase.auth.signUp({ email: document.getElementById('email').value, password: document.getElementById('password').value });
+        if (error) alert("確認メールをチェックしてください");
+    };
+
+    document.getElementById('btn-logout').onclick = async () => { await mySupabase.auth.signOut(); };
+
+    document.getElementById('btn-save').onclick = async () => {
+        const content = document.getElementById('content').value;
+        const stamp = document.querySelector('input[name="stamp"]:checked').value;
+        if (!content) return alert("内容を入力してください");
+        const { data: { user } } = await mySupabase.auth.getUser();
+        const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false }).replace(/\//g, "-");
+        const contentHash = await generateHash(`${nowJst}-${user.id}-${content}-${stamp}`);
+        const proofHash = await generateHash(`${nowJst}-${user.id}-${stamp}-${contentHash}`);
+        const { error } = await mySupabase.from('entries').insert([{ content, stamp, user_id: user.id, display_time: nowJst, hash: contentHash, proof_hash: proofHash }]);
+        if (error) alert(error.message); else { document.getElementById('content').value = ''; loadEntries(); }
+    };
+
+    <!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My-Log-DB</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode"></script>
+
+    <style>
+        body { font-family: sans-serif; max-width: 500px; margin: 20px auto; padding: 10px; background: #f0f2f5; color: #333; }
+        .hidden { display: none !important; }
+        .card { background: white; padding: 20px; border-radius: 12px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        input, textarea, button { width: 100%; padding: 12px; margin: 8px 0; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; font-size: 16px; }
+        button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
+        button:hover { background: #0056b3; }
+        .secondary-btn { background: #28a745; }
+        .logout-btn { background: #666; font-size: 12px; width: auto; float: right; padding: 5px 10px; }
+        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; cursor: pointer; }
+        .del-btn:hover { color: #dc3545; }
+        .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+
+<div id="loading-screen" style="text-align:center; margin-top: 100px;">
+    <p style="color: #666;">読み込み中...</p>
+</div>
+
+<div id="auth-section" class="card hidden">
+    <h2 style="text-align:center;">My-Log-DB</h2>
+    <input type="email" id="email" placeholder="メールアドレス">
+    <input type="password" id="password" placeholder="パスワード">
+    <button id="btn-login" class="secondary-btn">ログイン</button>
+    <button id="btn-signup">新規登録</button>
+    <p style="text-align:center; font-size: 14px;">
+        <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
+    </p>
+</div>
+
+<div id="main-section" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🆔</button>
+            <h2 style="margin: 0;">My-Log</h2>
+        </div>
+        <button id="btn-logout" class="logout-btn">ログアウト</button>
+    </div>
+
+    <div class="card" id="entry-card">
+        <div id="stamp-selector" style="display: flex; justify-content: space-around; margin-bottom: 15px; padding: 10px; background: #f8f9fa; border-radius: 10px;">
+            <label style="text-align:center; cursor:pointer;"><input type="radio" name="stamp" value="" checked><br>📝</label>
+            <label style="text-align:center; cursor:pointer;"><input type="radio" name="stamp" value="🍽️"><br>🍽️</label>
+            <label style="text-align:center; cursor:pointer;"><input type="radio" name="stamp" value="☀️"><br>☀️</label>
+            <label style="text-align:center; cursor:pointer;"><input type="radio" name="stamp" value="💤"><br>💤</label>
+            <label style="text-align:center; cursor:pointer;"><input type="radio" name="stamp" value="🛁"><br>🛁</label>
+            <label style="text-align:center; cursor:pointer;"><input type="radio" name="stamp" value="💊"><br>💊</label>
+        </div>
+        <textarea id="content" placeholder="今日はどんな一日だった？" style="min-height: 100px;"></textarea>
+        <button id="btn-save">記録する</button>
+    </div>
+
+    <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: stretch;">
+        <div style="position: relative; flex: 1;">
+            <input type="text" id="search" class="search-box" style="width: 100%; margin: 0; padding-left: 35px; height: 46px;" placeholder="検索 (ハッシュ値も可)..." oninput="loadEntries()">
+            <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;">🔍</span>
+        </div>
+        <div style="position: relative; width: 50px; height: 46px; background: white; border: 1px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer;">
+            <span style="font-size: 20px;">🗓️</span>
+            <input type="date" id="date-search" onchange="loadEntries();" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5;">
+        </div>
+        <button onclick="clearSearch()" style="width: 50px; height: 46px; margin: 0; background: #666;">🔄</button>
+    </div>
+
+    <div id="stats-panel" style="margin-bottom: 20px; padding: 10px; background: white; border-radius: 10px; display: flex; justify-content: space-around; font-size: 12px;">
+        <div>🍽️ <span id="count-meal">0</span></div>
+        <div>☀️ <span id="count-active">0</span></div>
+        <div>💤 <span id="count-sleep">0</span></div>
+        <div>🛁 <span id="count-bath">0</span></div>
+        <div>💊 <span id="count-med">0</span></div>
+    </div>
+
+    <button id="btn-scan-start" style="background:#6f42c1; margin-bottom:20px;">📷 記録を検証する</button>
+    <div id="entries-container"></div>
+</div>
+
+<div id="id-modal" onclick="closeIdModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; justify-content:center; align-items:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center;">
+        <h3>My User ID</h3>
+        <div id="id-qrcode-container" style="display:flex; justify-content:center; margin:15px 0;"></div>
+        <div style="background:#f0f0f0; padding:10px; border-radius:8px; word-break:break-all; font-size:12px;">
+            <code id="display-user-id"></code>
+        </div>
+        <button onclick="closeIdModal()" style="margin-top:15px; background:#666;">閉じる</button>
+    </div>
+</div>
+
+<div id="qr-modal" onclick="closeQr()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:20px; border-radius:15px; width:90%; max-width:350px; text-align:center;">
+        <h3>記録ハッシュ QR</h3>
+        <div id="qrcode-container" style="display:flex; justify-content:center; margin:15px 0;"></div>
+        <div id="qr-info" style="font-size:11px; text-align:left; background:#f9f9f9; padding:15px; border-radius:8px; word-break:break-all;">
+            </div>
+        <button onclick="closeQr()" style="margin-top:15px; background:#666;">閉じる</button>
+    </div>
+</div>
+
+<div id="scan-modal" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.9); z-index:2000; flex-direction:column; align-items:center; justify-content:center;">
+    <div id="reader" style="width:300px; background:white; border-radius:10px;"></div>
+    <button onclick="stopScan()" style="margin-top:20px; background:#dc3545; width:auto; padding:10px 20px;">中止</button>
+</div>
+
+<div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:350px; text-align:left; color:#333; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <div style="text-align:center; font-size:50px; margin-bottom:10px;">✅</div>
+        <h2 style="text-align:center; margin-top:0; color:#28a745;">VERIFIED</h2>
+        <div id="verify-detail" style="font-size:13px; line-height:1.6;"></div>
+        <button onclick="document.getElementById('verify-success').style.display='none'" style="margin-top:20px; background:#666;">閉じる</button>
+    </div>
+</div>
+
+<script>
+    const SUPABASE_URL = 'https://xndppcxjgzpjxgfrjhvs.supabase.co';
+    const SUPABASE_KEY = 'sb_publishable_7z4P3Boo--Us6Iq-u6yF6Q_VGnfjYyL';
+    const mySupabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const authSection = document.getElementById('auth-section');
+    const mainSection = document.getElementById('main-section');
+    const loadingScreen = document.getElementById('loading-screen');
+
+    let currentRangeDays = 0; // 現在選択されている期間を覚える変数
+
 
     async function generateHash(text) {
         const msgUint8 = new TextEncoder().encode(text);
