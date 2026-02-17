@@ -45,6 +45,17 @@
 
 </div>
 
+<div id="recovery-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; justify-content:center; align-items:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
+        <h3>パスワード再設定</h3>
+        <p style="font-size:12px; color:#666;">12個のリカバリーフレーズを入力してください：</p>
+        <textarea id="input-phrase" placeholder="word1 word2 ..." style="width:100%; height:80px;"></textarea>
+        <input type="password" id="new-password" placeholder="新しいパスワード">
+        <button id="btn-execute-recovery">パスワードを更新する</button>
+        <button onclick="document.getElementById('recovery-modal').style.display='none'" style="background:#666;">キャンセル</button>
+    </div>
+</div>
+
 <div id="main-section" class="hidden">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
         <div style="display: flex; align-items: center; gap: 10px;">
@@ -164,6 +175,19 @@
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
+// パスワード再設定用の単語リスト（簡易版：実際にはもっと増やせます）
+const wordList = ["apple", "bird", "cloud", "dance", "earth", "forest", "grape", "house", "iron", "jump", "knife", "lemon", "mountain", "night", "ocean", "piano", "river", "stone", "tiger", "under", "valley", "water", "young", "zebra"];
+
+function generateSeedPhrase() {
+    let phrase = [];
+    for (let i = 0; i < 12; i++) {
+        const randomIndex = Math.floor(Math.random() * wordList.length);
+        phrase.push(wordList[randomIndex]);
+    }
+    return phrase.join(" ");
+}
+
+
     function playBeep() {
         try {
             const ctx = new (window.AudioContext || window.webkitAudioContext)();
@@ -189,9 +213,55 @@
     };
 
     document.getElementById('btn-signup').onclick = async () => {
-        const { error } = await mySupabase.auth.signUp({ email: document.getElementById('email').value, password: document.getElementById('password').value });
-        if (error) alert("確認メールをチェックしてください");
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    
+    if (!email || !password) return alert("メールとパスワードを入力してください");
+
+    const phrase = generateSeedPhrase();
+    
+    // ユーザーにフレーズを覚えさせるための確認
+    if (confirm("【重要】パスワード再設定用のフレーズです。必ず控えてください：\n\n" + phrase + "\n\n控えましたか？")) {
+        const { error } = await mySupabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: { recovery_phrase: phrase } // Supabaseのメタデータに保存
+            }
+        });
+        if (error) alert(error.message);
+        else alert("確認メールを送信しました");
+    }
+};
+
+    // --- パスワード再設定（リカバリーフレーズ方式）の処理 ---
+
+    // 1. リンクをクリックした時にモーダルを開く
+    document.getElementById('link-reset').onclick = (e) => {
+        e.preventDefault();
+        // 入力欄を空にしてから表示
+        document.getElementById('input-phrase').value = '';
+        document.getElementById('new-password').value = '';
+        document.getElementById('recovery-modal').style.display = 'flex';
     };
+
+    // 2. 更新ボタンを押した時の処理
+    document.getElementById('btn-execute-recovery').onclick = async () => {
+        const email = document.getElementById('email').value;
+        const inputPhrase = document.getElementById('input-phrase').value.trim();
+        const newPassword = document.getElementById('new-password').value;
+
+        if (!email || !inputPhrase || !newPassword) {
+            return alert("メールアドレス、フレーズ、新しいパスワードをすべて入力してください");
+        }
+
+        // 現時点ではUIの動作確認用アラートを表示
+        // 本格実装にはSupabase Edge Functions等での照合ロジックが必要です
+        alert("【動作確認】\nリカバリーフレーズを受け取りました。\nセキュリティ保護のため、実際の照合・更新機能はバックエンド側の設定と連携して動作します。");
+        
+        document.getElementById('recovery-modal').style.display = 'none';
+    };
+
 
     document.getElementById('btn-logout').onclick = async () => { await mySupabase.auth.signOut(); };
 
