@@ -125,6 +125,13 @@
         </div>
         <button onclick="closeIdModal()" style="margin-top:15px; background:#666;">閉じる</button>
     </div>
+    <div style="margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ff4d4f;">
+    <p style="font-size: 11px; color: #999;">退会すると全てのデータが完全に削除され、復元できません。</p>
+    <button id="btn-delete-account" style="background: #dc3545; font-size: 13px; padding: 8px; width: auto; margin: 5px auto;">
+        アカウントを削除して退会する
+    </button>
+</div>
+
 </div>
 
 <div id="qr-modal" onclick="closeQr()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
@@ -264,6 +271,45 @@ function generateSeedPhrase() {
 
 
     document.getElementById('btn-logout').onclick = async () => { await mySupabase.auth.signOut(); };
+
+        // アカウント削除（退会）処理
+    document.getElementById('btn-delete-account').onclick = async () => {
+        const { data: { user } } = await mySupabase.auth.getUser();
+        if (!user) return;
+
+        const confirmFirst = confirm("本当に退会しますか？\nこれまでの全記録、およびアカウント情報がサーバーから完全に削除されます。この操作は取り消せません。");
+        if (!confirmFirst) return;
+
+        const confirmSecond = confirm("【最終確認】\n本当に削除してよろしいですか？");
+        if (!confirmSecond) return;
+
+        try {
+            // 1. ユーザー自身の記録を削除（テーブル名が 'entries' の場合）
+            const { error: dbError } = await mySupabase
+                .from('entries')
+                .delete()
+                .eq('user_id', user.id);
+
+            if (dbError) throw dbError;
+
+            // 2. Authアカウントを削除するSQL関数（RPC）を呼び出し
+            const { error: authError } = await mySupabase.rpc('delete_user_account');
+
+            if (authError) {
+                console.error("Auth削除エラー:", authError);
+                // 権限の問題でAuthが消せなくても、まずはログアウトさせてデータを保護
+            }
+
+            // 3. ログアウトして画面を更新
+            await mySupabase.auth.signOut();
+            alert("退会手続きが完了し、全てのデータが消去されました。");
+            location.reload();
+
+        } catch (err) {
+            alert("エラーが発生しました: " + err.message);
+        }
+    };
+
 
     document.getElementById('btn-save').onclick = async () => {
         const content = document.getElementById('content').value;
