@@ -229,7 +229,7 @@ function generateSeedPhrase() {
     const phrase = generateSeedPhrase();
     
     // ユーザーにフレーズを覚えさせるための確認
-    if (confirm("【重要】パスワード再設定用のフレーズです。必ず控えてください：\n\n" + phrase + "\n\n控えましたか？")) {
+    if (confirm("【重要】パスワード再設定用のフレーズです。必ず控えてください：\n\n" + phrase + "\n\n控えましたか？⚠️二度と表示されません")) {
         const { error } = await mySupabase.auth.signUp({
             email,
             password,
@@ -238,7 +238,7 @@ function generateSeedPhrase() {
             }
         });
         if (error) alert(error.message);
-        else alert("確認メールを送信しました");
+        else alert("登録完了✅");
     }
 };
 
