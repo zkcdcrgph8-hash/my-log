@@ -46,15 +46,21 @@
 </div>
 
 <div id="recovery-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; justify-content:center; align-items:center;">
-    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px;">
-        <h3>パスワード再設定</h3>
-        <p style="font-size:12px; color:#666;">12個のリカバリーフレーズを入力してください：</p>
-        <textarea id="input-phrase" placeholder="word1 word2 ..." style="width:100%; height:80px;"></textarea>
-        <input type="password" id="new-password" placeholder="新しいパスワード">
-        <button id="btn-execute-recovery">パスワードを更新する</button>
-        <button onclick="document.getElementById('recovery-modal').style.display='none'" style="background:#666;">キャンセル</button>
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px; text-align:center;">
+        <h3 style="margin-top:0;">パスワード再設定</h3>
+        <p style="font-size:12px; color:#666; text-align:left; margin-bottom:15px;">登録済みのメールアドレス、12個のフレーズ、新しいパスワードを入力してください。</p>
+        
+        <input type="email" id="recovery-email" placeholder="メールアドレス" style="margin-bottom:10px; width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+        
+        <textarea id="input-phrase" placeholder="12個のフレーズ（例: apple bird cloud...）" style="width:100%; height:80px; margin-bottom:10px; padding:10px; border:1px solid #ddd; border-radius:6px; font-family:monospace;"></textarea>
+        
+        <input type="password" id="recovery-new-password" placeholder="新しいパスワード" style="margin-bottom:15px; width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
+        
+        <button id="btn-execute-recovery" style="background:#28a745; width:100%; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold;">パスワードを更新する</button>
+        <button onclick="document.getElementById('recovery-modal').style.display='none'" style="background:none; color:#666; margin-top:10px; border:none; cursor:pointer; font-size:13px;">キャンセル</button>
     </div>
 </div>
+
 
 <div id="main-section" class="hidden">
     <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
@@ -255,15 +261,17 @@ function generateSeedPhrase() {
 
     // 2. 更新ボタンを押した時の処理
     document.getElementById('btn-execute-recovery').onclick = async () => {
-    const email = document.getElementById('email').value;
+    // モーダル内の新しいIDから値を取得
+    const email = document.getElementById('recovery-email').value.trim();
     const inputPhrase = document.getElementById('input-phrase').value.trim();
-    const newPassword = document.getElementById('new-password').value;
+    const newPassword = document.getElementById('recovery-new-password').value;
 
-    if (!email || !inputPhrase || !newPassword) return alert("全て入力してください");
+    if (!email || !inputPhrase || !newPassword) {
+        return alert("全ての項目を正しく入力してください");
+    }
 
     try {
-        // 1. まず、入力されたメールアドレスのユーザー情報を取得（RPC経由）
-        // ※Supabaseの標準機能では他人のメタデータを検索できないため、専用の関数を呼びます
+        // SQL関数を呼び出し
         const { data, error } = await mySupabase.rpc('verify_and_update_password', {
             p_email: email,
             p_phrase: inputPhrase,
@@ -273,16 +281,15 @@ function generateSeedPhrase() {
         if (error) throw error;
 
         if (data === true) {
-            alert("パスワードの更新に成功しました！新しいパスワードでログインしてください。");
+            alert("成功：パスワードが更新されました！\n新しいパスワードでログインしてください。");
             document.getElementById('recovery-modal').style.display = 'none';
         } else {
-            alert("フレーズが一致しないか、ユーザーが見つかりません。");
+            alert("エラー：メールアドレスまたはフレーズが一致しません。");
         }
     } catch (err) {
-        alert("エラーが発生しました: " + err.message);
+        alert("実行エラー: " + err.message);
     }
 };
-
 
 
     document.getElementById('btn-logout').onclick = async () => { await mySupabase.auth.signOut(); };
