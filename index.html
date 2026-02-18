@@ -252,12 +252,15 @@ function generateSeedPhrase() {
 
     // 1. リンクをクリックした時にモーダルを開く
     document.getElementById('link-reset').onclick = (e) => {
-        e.preventDefault();
-        // 入力欄を空にしてから表示
-        document.getElementById('input-phrase').value = '';
-        document.getElementById('new-password').value = '';
-        document.getElementById('recovery-modal').style.display = 'flex';
-    };
+    e.preventDefault();
+    // モーダル内の各入力欄を空にする（IDを新しいものに合わせる）
+    document.getElementById('recovery-email').value = '';
+    document.getElementById('input-phrase').value = '';
+    document.getElementById('recovery-new-password').value = ''; // ここを修正
+    
+    document.getElementById('recovery-modal').style.display = 'flex';
+};
+
 
     // 2. 更新ボタンを押した時の処理
     document.getElementById('btn-execute-recovery').onclick = async () => {
