@@ -255,20 +255,34 @@ function generateSeedPhrase() {
 
     // 2. 更新ボタンを押した時の処理
     document.getElementById('btn-execute-recovery').onclick = async () => {
-        const email = document.getElementById('email').value;
-        const inputPhrase = document.getElementById('input-phrase').value.trim();
-        const newPassword = document.getElementById('new-password').value;
+    const email = document.getElementById('email').value;
+    const inputPhrase = document.getElementById('input-phrase').value.trim();
+    const newPassword = document.getElementById('new-password').value;
 
-        if (!email || !inputPhrase || !newPassword) {
-            return alert("メールアドレス、フレーズ、新しいパスワードをすべて入力してください");
+    if (!email || !inputPhrase || !newPassword) return alert("全て入力してください");
+
+    try {
+        // 1. まず、入力されたメールアドレスのユーザー情報を取得（RPC経由）
+        // ※Supabaseの標準機能では他人のメタデータを検索できないため、専用の関数を呼びます
+        const { data, error } = await mySupabase.rpc('verify_and_update_password', {
+            p_email: email,
+            p_phrase: inputPhrase,
+            p_new_password: newPassword
+        });
+
+        if (error) throw error;
+
+        if (data === true) {
+            alert("パスワードの更新に成功しました！新しいパスワードでログインしてください。");
+            document.getElementById('recovery-modal').style.display = 'none';
+        } else {
+            alert("フレーズが一致しないか、ユーザーが見つかりません。");
         }
+    } catch (err) {
+        alert("エラーが発生しました: " + err.message);
+    }
+};
 
-        // 現時点ではUIの動作確認用アラートを表示
-        // 本格実装にはSupabase Edge Functions等での照合ロジックが必要です
-        alert("【動作確認】\nリカバリーフレーズを受け取りました。\nセキュリティ保護のため、実際の照合・更新機能はバックエンド側の設定と連携して動作します。");
-        
-        document.getElementById('recovery-modal').style.display = 'none';
-    };
 
 
     document.getElementById('btn-logout').onclick = async () => { await mySupabase.auth.signOut(); };
