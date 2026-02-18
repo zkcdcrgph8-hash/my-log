@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My-Log-DB</title>
+    <title>Sha256og</title>
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
@@ -30,7 +30,7 @@
 </div>
 
 <div id="auth-section" class="card hidden">
-    <h2 style="text-align:center;">My-Log-DB</h2>
+    <h2 style="text-align:center;">Sha256og</h2>
     <input type="email" id="email" placeholder="メールアドレス">
     <input type="password" id="password" placeholder="パスワード">
     <button id="btn-login" class="secondary-btn">ログイン</button>
@@ -124,7 +124,7 @@
 
 <div id="id-modal" onclick="closeIdModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center;">
-        <h3>My User ID</h3>
+        <h3>Sha256og User ID</h3>
         <div id="id-qrcode-container" style="display:flex; justify-content:center; margin:15px 0;"></div>
         <div style="background:#f0f0f0; padding:10px; border-radius:8px; word-break:break-all; font-size:12px; margin-bottom: 15px;">
             <code id="display-user-id"></code>
@@ -421,10 +421,10 @@ function generateSeedPhrase() {
 
     // 利用規約を表示する関数
     window.showTerms = () => {
-        const terms = `【My-Log-DB 利用規約】
+        const terms = `【Sha256og(シャニゴログ)利用規約】
 
 第1条（自己責任）
-ユーザーは本サービスを自己の責任において利用するものとします。
+ユーザーは本サービス(Sha256og)を自己の責任において利用するものとします。
 
 第2条（ハッシュ証明）
 本サービスが生成するハッシュ値は、記録時のデータの同一性を数学的に証明するものですが、法的証拠能力を保証するものではありません。
@@ -432,9 +432,13 @@ function generateSeedPhrase() {
 第3条（削除と復元）
 1. ユーザーは自身の記録をいつでも削除できます。
 2. 一度削除されたデータは、理由を問わず一切復元できません。重要な記録は各自で管理してください。
+3. ユーザーがリカバリーフレーズを紛失した場合、パスワードの再設定およびアカウントの復旧は不可能となります。運営側でのフレーズ再発行や強制解除は行いません。
 
 第4条（免責事項）
-システム障害やメンテナンスによるデータ消失やサービス停止について、当方は一切の責任を負いません。`;
+システム障害やメンテナンスによるデータ消失やサービス停止について、当方は一切の責任を負いません。
+
+第5条（準拠法）
+本規約は日本法に基づき解釈されるものとします。`;
 
         document.getElementById('terms-title').innerText = "利用規約";
         document.getElementById('terms-content').innerText = terms;
@@ -443,24 +447,33 @@ function generateSeedPhrase() {
 
     // プライバシーポリシーを表示する関数（ついでに作っておきました）
     window.showPrivacy = () => {
-        const privacy = `【プライバシーポリシー】
+    const privacy = `【Sha256og プライバシーポリシー】
 
 1. データの収集
-本サービスは、アカウント管理のためにメールアドレスを、サービス提供のためにログ内容を収集します。
+本サービスは、アカウント作成および認証のために「メールアドレス」を、サービス提供のために「入力されたログ内容（およびスタンプ、タイムスタンプ）」を収集・保存します。
 
-2. データの利用
-収集したデータは、本サービスの提供およびユーザー管理以外の目的には利用しません。
+2. データの利用目的
+収集したデータは、以下の目的以外には利用しません。
+・ユーザー認証およびアカウント管理
+・本サービスにおけるログの記録、ハッシュ値の生成、および検証機能の提供
 
-3. 第三者への提供
-法令に基づく場合を除き、ユーザーの同意なくデータを第三者に提供することはありません。
+3. データの管理と安全管理措置
+・ログデータは、SHA-256アルゴリズムを用いてハッシュ化され、その整合性を担保します。
+・本サービスはバックエンドにSupabase（Supabase, Inc.）を利用しており、データは同社の提供する安全なインフラストラクチャ上で管理されます。
 
-4. 外部サービスの利用
-本サービスはバックエンドにSupabaseを利用しており、データは同社のインフラ上で安全に管理されます。`;
+4. 第三者への提供
+法令に基づく場合、またはユーザーの同意がある場合を除き、個人情報を第三者に提供することはありません。
 
-        document.getElementById('terms-title').innerText = "プライバシーポリシー";
-        document.getElementById('terms-content').innerText = privacy;
-        document.getElementById('terms-modal').style.display = 'flex';
-    };
+5. データの削除権
+ユーザーは、本サービス内の退会機能を利用することで、サーバー上のメールアドレス、パスワード、および全ての投稿データを即時に、かつ恒久的に削除することができます。
+
+6. お問い合わせ
+本ポリシーに関するお問い合わせは、サービス内の管理者までご連絡ください。`;
+
+    document.getElementById('terms-title').innerText = "Sha256og プライバシーポリシー";
+    document.getElementById('terms-content').innerText = privacy;
+    document.getElementById('terms-modal').style.display = 'flex';
+};
 
 
     window.closeIdModal = () => document.getElementById('id-modal').style.display = 'none';
