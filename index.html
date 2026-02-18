@@ -120,19 +120,20 @@
     <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center;">
         <h3>My User ID</h3>
         <div id="id-qrcode-container" style="display:flex; justify-content:center; margin:15px 0;"></div>
-        <div style="background:#f0f0f0; padding:10px; border-radius:8px; word-break:break-all; font-size:12px;">
+        <div style="background:#f0f0f0; padding:10px; border-radius:8px; word-break:break-all; font-size:12px; margin-bottom: 15px;">
             <code id="display-user-id"></code>
         </div>
-        <button onclick="closeIdModal()" style="margin-top:15px; background:#666;">閉じる</button>
-    </div>
-    <div style="margin-top: 30px; padding-top: 15px; border-top: 1px dashed #ff4d4f;">
-    <p style="font-size: 11px; color: #999;">退会すると全てのデータが完全に削除され、復元できません。</p>
-    <button id="btn-delete-account" style="background: #dc3545; font-size: 13px; padding: 8px; width: auto; margin: 5px auto;">
-        アカウントを削除して退会する
-    </button>
-</div>
+        
+        <button onclick="closeIdModal()" style="background:#666; width: 100%; margin-bottom: 20px;">閉じる</button>
 
-</div>
+        <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ff4d4f;">
+            <p style="font-size: 10px; color: #999; margin-bottom: 8px;">退会すると全てのデータが完全に削除され、復元できません。</p>
+            <button id="btn-delete-account" style="background: #dc3545; font-size: 12px; padding: 6px 12px; width: auto; margin: 0 auto; display: block; border-radius: 6px; color: white; border: none; cursor: pointer;">
+                アカウントを削除して退会する
+            </button>
+        </div>
+    </div> </div>
+
 
 <div id="qr-modal" onclick="closeQr()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:20px; border-radius:15px; width:90%; max-width:350px; text-align:center;">
