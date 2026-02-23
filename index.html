@@ -592,24 +592,69 @@ async function showChainVerify() {
     document.getElementById('chain-modal').style.display = 'flex';
 }
 
-document.getElementById('btn-generate-chain-art').onclick = function() {
-    // 1. 表示されているファイナルハッシュを取得
-    const finalHash = document.getElementById('final-chain-hash').innerText;
-    
-    if (!finalHash || finalHash === "Calculating...") return;
+/**
+ * ハッシュ値から画像を生成するエンジン（これが必要です！）
+ */
+function generateShaPattern(hash, canvasId) {
+    const canvas = document.getElementById(canvasId);
+    if (!canvas) return null;
+    const ctx = canvas.getContext('2d');
+    const w = canvas.width;
+    const h = canvas.height;
 
-    // 2. 以前作成した「generateShaPattern」関数を呼び出す
-    // 第2引数にはモーダル内に追加した 'chainCanvas' のIDを指定
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.fillStyle = '#050510';
+    ctx.fillRect(0, 0, w, h);
+
+    const hue1 = parseInt(hash.substring(0, 2), 16) % 360;
+    const sectors = (parseInt(hash.substring(2, 4), 16) % 7) + 6; 
+
+    ctx.translate(w / 2, h / 2);
+    ctx.globalCompositeOperation = 'lighter';
+
+    for (let i = 0; i < sectors; i++) {
+        ctx.rotate((Math.PI * 2) / sectors);
+        for (let j = 0; j < hash.length - 12; j += 6) {
+            const x1 = (parseInt(hash.substring(j, j + 2), 16) - 128) * 1.8;
+            const y1 = (parseInt(hash.substring(j + 2, j + 4), 16) - 128) * 1.8;
+            const cp1x = parseInt(hash.substring(j + 4, j + 6), 16) * 1.2;
+            const cp2x = parseInt(hash.substring(j + 6, j + 8), 16) * 1.2;
+            
+            ctx.beginPath();
+            const grad = ctx.createLinearGradient(0, 0, x1, y1);
+            grad.addColorStop(0, `hsla(${hue1}, 100%, 70%, 0)`); 
+            grad.addColorStop(0.5, `hsla(${hue1 + x1}, 100%, 80%, 0.7)`);
+            grad.addColorStop(1, `hsla(${hue1 + y1}, 100%, 70%, 0)`); 
+            
+            ctx.strokeStyle = grad;
+            ctx.lineWidth = 2.0;
+            ctx.moveTo(0, 0);
+            ctx.bezierCurveTo(cp1x, cp2x, y1, x1, x1, y1);
+            ctx.stroke();
+
+            if (j % 12 === 0) {
+                ctx.fillStyle = `hsla(${hue1 + cp1x}, 100%, 90%, 0.8)`;
+                ctx.beginPath();
+                ctx.arc(x1, y1, 3, 0, Math.PI * 2); 
+                ctx.fill();
+            }
+        }
+    }
+    return canvas.toDataURL("image/png");
+}
+
+// ボタンのクリックイベント（ここで generateShaPattern を呼び出す）
+document.getElementById('btn-generate-chain-art').onclick = function() {
+    const finalHash = document.getElementById('final-chain-hash').innerText;
+    if (!finalHash || finalHash === "Calculating...") return;
+    
+    // ここでエラーが出ていたはず
     const imageData = generateShaPattern(finalHash, 'chainCanvas');
 
-    // 3. 画像を表示してコンテナを可視化する
     if (imageData) {
         document.getElementById('chainPreviewImage').src = imageData;
         document.getElementById('chain-image-container').style.display = 'block';
-        
-        // 生成ボタンは一度押したら隠す、またはテキストを変える
-        this.innerText = "模様を更新しました";
-        this.style.background = "#28a745"; // 成功色（緑）に変更
+        this.innerText = "模様を生成しました";
     }
 };
 
