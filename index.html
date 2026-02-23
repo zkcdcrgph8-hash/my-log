@@ -63,12 +63,22 @@
 
 
 <div id="main-section" class="hidden">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-        <div style="display: flex; align-items: center; gap: 10px;">
-            <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🆔</button>
-            <h2 style="margin: 0;">My-Log</h2>
-        </div>
-        <button id="btn-logout" class="logout-btn">ログアウト</button>
+
+
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+    <div style="display: flex; align-items: center; gap: 10px;">
+        <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🆔</button>
+        <h2 style="margin: 0;">My-Log</h2>
+    </div>
+    
+    <div id="total-log-container" style="background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #007bff; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
+        <span id="total-log-count">0</span> / 100 log
+    </div>
+
+    <button id="btn-logout" class="logout-btn">ログアウト</button>
+</div>
+    
+
     </div>
 
     <div class="card" id="entry-card">
@@ -379,6 +389,17 @@ function generateSeedPhrase() {
 
         const { data, error } = await query.order('created_at', { ascending: false });
         if (error) return;
+
+// 全期間の総ログ数を表示（data.length は現在の取得件数）
+document.getElementById('total-log-count').innerText = data.length;
+
+// ついでに、100件に近づくと色が変わるような演出も可能です（任意）
+if (data.length >= 23) {
+    document.getElementById('total-log-container').style.color = '#dc3545'; // リーチで赤く
+} else {
+    document.getElementById('total-log-container').style.color = '#007bff';
+}
+// -----------------------
 
         const counts = { "🍽️":0, "☀️":0, "💤":0, "🛁":0, "💊":0 };
         data.forEach(e => { if(e.stamp in counts) counts[e.stamp]++; });
