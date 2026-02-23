@@ -120,20 +120,6 @@
 
     <button id="btn-scan-start" style="background:#6f42c1; margin-bottom:20px;">📷 記録を検証する</button>
     <div id="entries-container"></div>
-
-    <div id="entries-container"></div>
-
-    <div id="nft-preview-section" class="card hidden" style="text-align: center; border: 2px solid #6f42c1;">
-        <h3 style="color: #6f42c1;">㊗️ 100記録達成！</h3>
-        <p style="font-size: 13px; color: #666;">あなたの「誠実さ」がアートになりました。</p>
-        <canvas id="nftCanvas" width="500" height="500" style="display:none;"></canvas>
-        <img id="nftPreviewImage" src="" alt="NFT Preview" style="width: 100%; border-radius: 10px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
-        
-        <button id="btn-mint-trigger" style="background: linear-gradient(135deg, #6f42c1, #007bff); margin-top: 15px;">
-            500円でNFT化して保存
-        </button>
-    </div>
-
 </div>
 
 <div id="id-modal" onclick="closeIdModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; justify-content:center; align-items:center;">
@@ -404,23 +390,6 @@ function generateSeedPhrase() {
 
         document.getElementById('entries-container').innerHTML = data.map(e => `
             <div class="entry">
-
-        // loadEntries 関数内の最後の方に追加
-        // ... (entries-containerの書き換えが終わった後) ...
-
-        // 23件達成チェック
-        if (data.length >= 23) {
-            // 本来はここで「シーズン内の最新ハッシュ」を使いますが、
-            // まずは動作確認のため、一番最新のログのハッシュを使って模様を出します
-            const latestHash = data[0].hash;
-            const imageData = generateShaPattern(latestHash, 'nftCanvas');
-            
-            document.getElementById('nftPreviewImage').src = imageData;
-            document.getElementById('nft-preview-section').classList.remove('hidden');
-        } else {
-            document.getElementById('nft-preview-section').classList.add('hidden');
-        }
-
                 <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
                 <div style="display:flex; gap:10px;">
                     <div style="font-size:20px;">${e.stamp || '📝'}</div>
@@ -553,58 +522,6 @@ function generateSeedPhrase() {
             document.getElementById('verify-success').style.display = 'flex';
         } else { alert("⚠️ 未登録のハッシュです"); }
     }
-
-    /**
-     * ハッシュ値から幾何学模様を生成し、Canvasに描画する関数
-     */
-    function generateShaPattern(hash, canvasId) {
-        const canvas = document.getElementById(canvasId);
-        if (!canvas) return null;
-        const ctx = canvas.getContext('2d');
-        const w = canvas.width;
-        const h = canvas.height;
-
-        ctx.setTransform(1, 0, 0, 1, 0, 0);
-        ctx.fillStyle = '#050510';
-        ctx.fillRect(0, 0, w, h);
-
-        const hue1 = parseInt(hash.substring(0, 2), 16) % 360;
-        const sectors = (parseInt(hash.substring(2, 4), 16) % 7) + 6; 
-
-        ctx.translate(w / 2, h / 2);
-        ctx.globalCompositeOperation = 'lighter';
-
-        for (let i = 0; i < sectors; i++) {
-            ctx.rotate((Math.PI * 2) / sectors);
-            for (let j = 0; j < hash.length - 12; j += 6) {
-                const x1 = (parseInt(hash.substring(j, j + 2), 16) - 128) * 1.8;
-                const y1 = (parseInt(hash.substring(j + 2, j + 4), 16) - 128) * 1.8;
-                const cp1x = parseInt(hash.substring(j + 4, j + 6), 16) * 1.2;
-                const cp2x = parseInt(hash.substring(j + 6, j + 8), 16) * 1.2;
-                
-                ctx.beginPath();
-                const grad = ctx.createLinearGradient(0, 0, x1, y1);
-                grad.addColorStop(0, `hsla(${hue1}, 100%, 70%, 0)`); 
-                grad.addColorStop(0.5, `hsla(${hue1 + x1}, 100%, 80%, 0.7)`);
-                grad.addColorStop(1, `hsla(${hue1 + y1}, 100%, 70%, 0)`); 
-                
-                ctx.strokeStyle = grad;
-                ctx.lineWidth = 2.0;
-                ctx.moveTo(0, 0);
-                ctx.bezierCurveTo(cp1x, cp2x, y1, x1, x1, y1);
-                ctx.stroke();
-
-                if (j % 12 === 0) {
-                    ctx.fillStyle = `hsla(${hue1 + cp1x}, 100%, 90%, 0.8)`;
-                    ctx.beginPath();
-                    ctx.arc(x1, y1, 3, 0, Math.PI * 2); 
-                    ctx.fill();
-                }
-            }
-        }
-        return canvas.toDataURL("image/png");
-    }
-
 </script>
 
 </body>
