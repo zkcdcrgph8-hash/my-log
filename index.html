@@ -71,9 +71,10 @@
         <h2 style="margin: 0;"></h2>
     </div>
     
-    <div id="total-log-container" style="background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #007bff; box-shadow: inset 0 1px 3px rgba(0,0,0,0.1);">
-        #️⃣ <span id="total-log-count">0</span> log
-    </div>
+    <button id="total-log-container" onclick="showChainVerify()" style="background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #ddd; cursor: pointer; width: auto;">
+    #️⃣ <span id="total-log-count">0</span> log
+</button>
+
 
     <button id="btn-logout" class="logout-btn">ログアウト</button>
 </div>
@@ -171,6 +172,20 @@
         <h2 style="text-align:center; margin-top:0; color:#28a745;">VERIFIED</h2>
         <div id="verify-detail" style="font-size:13px; line-height:1.6;"></div>
         <button onclick="document.getElementById('verify-success').style.display='none'" style="margin-top:20px; background:#666;">閉じる</button>
+    </div>
+</div>
+
+<div id="chain-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3500; flex-direction:column; align-items:center; justify-content:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:350px; text-align:left;">
+        <h3 style="text-align:center; margin-top:0;">Chain Verification</h3>
+        <p style="font-size:12px; color:#666;">全ログを連結し、現在の「最終ハッシュ」を算出しました。この値がNFTの種となります。</p>
+        
+        <div style="background:#f0f2f5; padding:15px; border-radius:10px; word-break:break-all; font-family:monospace; font-size:11px; border-left: 4px solid #6f42c1;">
+            <b>Final Chain Hash:</b><br>
+            <span id="final-chain-hash">Calculating...</span>
+        </div>
+        
+        <button onclick="document.getElementById('chain-modal').style.display='none'" style="margin-top:20px; background:#666;">閉じる</button>
     </div>
 </div>
 
@@ -543,6 +558,34 @@ if (data.length >= 90) {
             document.getElementById('verify-success').style.display = 'flex';
         } else { alert("⚠️ 未登録のハッシュです"); }
     }
+
+async function showChainVerify() {
+    const { data: { user } } = await mySupabase.auth.getUser();
+    // 1. 全ログを古い順（作成順）に取得
+    const { data, error } = await mySupabase
+        .from('entries')
+        .select('hash')
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: true });
+
+    if (error || !data || data.length === 0) return alert("記録がありません");
+
+    // 2. ブロックチェーンの再構築
+    // 全てのハッシュを一つの長い文字列として結合する
+    let combinedString = "";
+    data.forEach(entry => {
+        combinedString += entry.hash; 
+    });
+
+    // 3. 結合した文字列から最終ハッシュを生成
+    const finalHash = await generateHash(combinedString);
+
+    // 4. モーダルに表示
+    document.getElementById('final-chain-hash').innerText = finalHash;
+    document.getElementById('chain-modal').style.display = 'flex';
+}
+
+
 </script>
 
 </body>
