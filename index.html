@@ -408,8 +408,8 @@ function generateSeedPhrase() {
         // loadEntries 関数内の最後の方に追加
         // ... (entries-containerの書き換えが終わった後) ...
 
-        // 100件達成チェック
-        if (data.length >= 100) {
+        // 10件達成チェック
+        if (data.length >= 10) {
             // 本来はここで「シーズン内の最新ハッシュ」を使いますが、
             // まずは動作確認のため、一番最新のログのハッシュを使って模様を出します
             const latestHash = data[0].hash;
