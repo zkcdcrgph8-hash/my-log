@@ -645,18 +645,38 @@ function generateShaPattern(hash, canvasId) {
 
 // ボタンのクリックイベント（ここで generateShaPattern を呼び出す）
 document.getElementById('btn-generate-chain-art').onclick = function() {
+    // 1. モーダルに現在表示されている「最新のハッシュ値」をその都度取得する
     const finalHash = document.getElementById('final-chain-hash').innerText;
-    if (!finalHash || finalHash === "Calculating...") return;
     
-    // ここでエラーが出ていたはず
+    if (!finalHash || finalHash === "Calculating...") {
+        alert("ハッシュ値の計算が終わるまでお待ちください");
+        return;
+    }
+
+    // 2. 前回の画像を一旦クリアする（ここが重要！）
+    const imgElement = document.getElementById('chainPreviewImage');
+    imgElement.src = ""; 
+
+    // 3. 新しいハッシュで画像データを生成
     const imageData = generateShaPattern(finalHash, 'chainCanvas');
 
+    // 4. 新しいデータを反映
     if (imageData) {
-        document.getElementById('chainPreviewImage').src = imageData;
+        imgElement.src = imageData;
         document.getElementById('chain-image-container').style.display = 'block';
-        this.innerText = "模様を生成しました";
+        
+        // 5. ボタンの状態もリセット（再生成したことがわかるように）
+        this.innerText = "模様を更新しました";
+        this.style.background = "#28a745"; 
+        
+        // 2秒後にボタンのテキストを元に戻すと親切です
+        setTimeout(() => {
+            this.innerText = "現在のハッシュで画像を生成";
+            this.style.background = "#6f42c1";
+        }, 2000);
     }
 };
+
 
 
 
