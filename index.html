@@ -604,6 +604,7 @@ function generateShaPattern(hash, canvasId) {
     const h = canvas.height;
 
     ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#050510';
     ctx.fillRect(0, 0, w, h);
 
@@ -682,17 +683,19 @@ document.getElementById('btn-generate-chain-art').onclick = function() {
  * チェーン検証モーダルを閉じ、中身をリセットする
  */
 function closeChainModal() {
-    // 1. モーダル本体を隠す
     document.getElementById('chain-modal').style.display = 'none';
     
-    // 2. 表示されていた画像をリセット（空にする）
+    // 画像タグを空にする
     const imgElement = document.getElementById('chainPreviewImage');
     imgElement.src = ""; 
     
-    // 3. 画像コンテナ自体を非表示に戻す
+    // ★追加：Canvas自体も真っさらにしておく
+    const canvas = document.getElementById('chainCanvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
     document.getElementById('chain-image-container').style.display = 'none';
     
-    // 4. 生成ボタンのテキストも元に戻しておく
     const genBtn = document.getElementById('btn-generate-chain-art');
     genBtn.innerText = "現在のハッシュで画像を生成";
     genBtn.style.background = "#6f42c1"; 
