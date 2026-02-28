@@ -16,11 +16,12 @@
         button { background: #007bff; color: white; border: none; cursor: pointer; font-weight: bold; transition: 0.3s; }
         button:hover { background: #0056b3; }
         .secondary-btn { background: #28a745; }
-        .logout-btn { background: #666; font-size: 12px; width: auto; float: right; padding: 5px 10px; }
+        .logout-btn { background: #666; font-size: 12px; width: auto; padding: 5px 10px; border-radius: 6px; }
         .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; cursor: pointer; }
         .del-btn:hover { color: #dc3545; }
         .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
+        .range-btn { background:#666; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0; }
     </style>
 </head>
 <body>
@@ -38,48 +39,23 @@
     <p style="text-align:center; font-size: 14px;">
         <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
     </p>
-　　<p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">
-    新規登録により、<a href="#" onclick="showTerms()">利用規約</a>と
-    <a href="#" onclick="showPrivacy()">ポリシー</a>に同意したことになります。
-</p>
-
+    <p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">
+        新規登録により、<a href="#" onclick="showTerms()">利用規約</a>と
+        <a href="#" onclick="showPrivacy()">ポリシー</a>に同意したことになります。
+    </p>
 </div>
-
-<div id="recovery-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; justify-content:center; align-items:center;">
-    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px; text-align:center;">
-        <h3 style="margin-top:0;">パスワード再設定</h3>
-        <p style="font-size:12px; color:#666; text-align:left; margin-bottom:15px;">登録済みのメールアドレス、12個のフレーズ、新しいパスワードを入力してください。</p>
-        
-        <input type="email" id="recovery-email" placeholder="メールアドレス" style="margin-bottom:10px; width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-        
-        <textarea id="input-phrase" placeholder="12個のフレーズ（例: apple bird cloud...）" style="width:100%; height:80px; margin-bottom:10px; padding:10px; border:1px solid #ddd; border-radius:6px; font-family:monospace;"></textarea>
-        
-        <input type="password" id="recovery-new-password" placeholder="新しいパスワード" style="margin-bottom:15px; width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-        
-        <button id="btn-execute-recovery" style="background:#28a745; width:100%; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold;">パスワードを更新する</button>
-        <button onclick="document.getElementById('recovery-modal').style.display='none'" style="background:none; color:#666; margin-top:10px; border:none; cursor:pointer; font-size:13px;">キャンセル</button>
-    </div>
-</div>
-
 
 <div id="main-section" class="hidden">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🆔</button>
+        </div>
+        
+        <button id="total-log-container" onclick="showChainVerify()" style="background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #ddd; cursor: pointer; width: auto;">
+            #️⃣ <span id="total-log-count">0</span> log
+        </button>
 
-
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🆔</button>
-        <h2 style="margin: 0;"></h2>
-    </div>
-    
-    <button id="total-log-container" onclick="showChainVerify()" style="background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #ddd; cursor: pointer; width: auto;">
-    #️⃣ <span id="total-log-count">0</span> log
-</button>
-
-
-    <button id="btn-logout" class="logout-btn">ログアウト</button>
-</div>
-    
-
+        <button id="btn-logout" class="logout-btn">ログアウト</button>
     </div>
 
     <div class="card" id="entry-card">
@@ -96,30 +72,24 @@
     </div>
 
     <div style="display: flex; gap: 5px; margin-bottom: 15px; overflow-x: auto; padding-bottom: 5px; -webkit-overflow-scrolling: touch;">
-        <button onclick="setRange(0)" class="range-btn" id="range-0" style="background:#007bff; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0;">全期間</button>
-        <button onclick="setRange(7)" class="range-btn" id="range-7" style="background:#666; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0;">1w</button>
-        <button onclick="setRange(14)" class="range-btn" id="range-14" style="background:#666; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0;">2w</button>
-        <button onclick="setRange(21)" class="range-btn" id="range-21" style="background:#666; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0;">3w</button>
-        <button onclick="setRange(28)" class="range-btn" id="range-28" style="background:#666; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0;">4w</button>
+        <button onclick="setRange(0)" class="range-btn" id="range-0" style="background:#007bff;">全期間</button>
+        <button onclick="setRange(7)" class="range-btn" id="range-7">1w</button>
+        <button onclick="setRange(14)" class="range-btn" id="range-14">2w</button>
+        <button onclick="setRange(21)" class="range-btn" id="range-21">3w</button>
+        <button onclick="setRange(28)" class="range-btn" id="range-28">4w</button>
     </div>
 
-        <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: stretch; height: 46px;">
+    <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: stretch; height: 46px;">
         <div style="position: relative; flex: 1;">
             <input type="text" id="search" class="search-box" style="width: 100%; height: 100%; margin: 0; padding-left: 35px;" placeholder="検索..." oninput="loadEntries()">
             <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;">🔍</span>
         </div>
-
         <div style="position: relative; width: 46px; height: 46px; flex-shrink: 0; background: white; border: 1px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden;">
             <span style="font-size: 20px;">🗓️</span>
-            <input type="date" id="date-search" onchange="loadEntries();" 
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; margin: 0; padding: 0; transform: scale(2); origin: center;">
+            <input type="date" id="date-search" onchange="loadEntries();" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; margin: 0; padding: 0; transform: scale(2); origin: center;">
         </div>
-
-        <button onclick="clearSearch()" style="width: 46px; height: 46px; flex-shrink: 0; margin: 0; background: #666; color: white; border: none; font-size: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; position: relative;">
-            🔄
-        </button>
+        <button onclick="clearSearch()" style="width: 46px; height: 46px; flex-shrink: 0; margin: 0; background: #666;">🔄</button>
     </div>
-
 
     <div id="stats-panel" style="margin-bottom: 20px; padding: 10px; background: white; border-radius: 10px; display: flex; justify-content: space-around; font-size: 12px;">
         <div>🍽️ <span id="count-meal">0</span></div>
@@ -133,28 +103,33 @@
     <div id="entries-container"></div>
 </div>
 
+<div id="recovery-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; justify-content:center; align-items:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px; text-align:center;">
+        <h3 style="margin-top:0;">パスワード再設定</h3>
+        <input type="email" id="recovery-email" placeholder="メールアドレス">
+        <textarea id="input-phrase" placeholder="12個のフレーズ" style="height:80px;"></textarea>
+        <input type="password" id="recovery-new-password" placeholder="新しいパスワード">
+        <button id="btn-execute-recovery" style="background:#28a745;">パスワードを更新する</button>
+        <button onclick="document.getElementById('recovery-modal').style.display='none'" style="background:none; color:#666;">キャンセル</button>
+    </div>
+</div>
+
 <div id="id-modal" onclick="closeIdModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center;">
-        <h3>Sha256og User ID</h3>
+        <h3>User ID</h3>
         <div id="id-qrcode-container" style="display:flex; justify-content:center; margin:15px 0;"></div>
         <div style="background:#f0f0f0; padding:10px; border-radius:8px; word-break:break-all; font-size:12px; margin-bottom: 15px;">
             <code id="display-user-id"></code>
         </div>
-        
-        <button onclick="closeIdModal()" style="background:#666; width: 100%; margin-bottom: 20px;">閉じる</button>
-
+        <button onclick="closeIdModal()" style="background:#666;">閉じる</button>
         <div style="margin-top: 20px; padding-top: 15px; border-top: 1px dashed #ff4d4f;">
-            <p style="font-size: 10px; color: #999; margin-bottom: 8px;">退会すると全てのデータが完全に削除され、復元できません。</p>
-            <button id="btn-delete-account" style="background: #dc3545; font-size: 12px; padding: 6px 12px; width: auto; margin: 0 auto; display: block; border-radius: 6px; color: white; border: none; cursor: pointer;">
-                アカウントを削除して退会する
-            </button>
+            <button id="btn-delete-account" style="background: #dc3545; font-size: 12px; width: auto;">アカウント削除</button>
         </div>
-    </div> </div>
-
+    </div>
+</div>
 
 <div id="qr-modal" onclick="closeQr()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:1000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:20px; border-radius:15px; width:90%; max-width:350px; text-align:center;">
-        <h3>記録ハッシュ QR</h3>
         <div id="qrcode-container" style="display:flex; justify-content:center; margin:15px 0;"></div>
         <div id="qr-info" style="font-size:11px; text-align:left; background:#f9f9f9; padding:15px; border-radius:8px; word-break:break-all;"></div>
         <button onclick="closeQr()" style="margin-top:15px; background:#666;">閉じる</button>
@@ -166,42 +141,36 @@
     <button onclick="stopScan()" style="margin-top:20px; background:#dc3545; width:auto; padding:10px 20px;">中止</button>
 </div>
 
-<div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; flex-direction:column; align-items:center; justify-content:center; cursor:pointer;">
-    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:350px; text-align:left; color:#333; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-        <div style="text-align:center; font-size:50px; margin-bottom:10px;">✅</div>
-        <h2 style="text-align:center; margin-top:0; color:#28a745;">VERIFIED</h2>
-        <div id="verify-detail" style="font-size:13px; line-height:1.6;"></div>
+<div id="verify-success" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3000; flex-direction:column; align-items:center; justify-content:center;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:350px;">
+        <div style="text-align:center; font-size:50px;">✅</div>
+        <h2 style="text-align:center; color:#28a745;">VERIFIED</h2>
+        <div id="verify-detail" style="font-size:13px;"></div>
         <button onclick="document.getElementById('verify-success').style.display='none'" style="margin-top:20px; background:#666;">閉じる</button>
     </div>
 </div>
 
 <div id="chain-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:3500; flex-direction:column; align-items:center; justify-content:center;">
-    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:350px; text-align:left;">
+    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:350px;">
         <h3 style="text-align:center; margin-top:0;">Chain Verification</h3>
-        
         <div style="background:#f0f2f5; padding:15px; border-radius:10px; word-break:break-all; font-family:monospace; font-size:11px; border-left: 4px solid #6f42c1;">
-            <b>Final Chain Hash:</b><br>
-            <span id="final-chain-hash">Calculating...</span>
+            <b>Final Chain Hash:</b><br><span id="final-chain-hash">Calculating...</span>
         </div>
-
-        <div id="chain-image-container" style="display:none; margin-top:15px; text-align:center;">
+        <div id="chain-image-container" style="display:none; margin-top:20px; text-align:center;">
             <canvas id="chainCanvas" width="500" height="500" style="display:none;"></canvas>
-            <img id="chainPreviewImage" src="" style="width: 100%; border-radius: 10px; border: 1px solid #ddd;">
-            <p style="font-size:10px; color:#999; margin-top:5px;">この模様は現在の全記録から生成されました</p>
+            <img id="chainPreviewImage" src="" style="width: 100%; border-radius: 10px; border: 1px solid #444; cursor:pointer;">
+            <p style="font-size:12px; color:#aaa; margin-top:10px;">画像を長押しして保存できます</p>
         </div>
-        
         <button id="btn-generate-chain-art" style="margin-top:20px; background:#6f42c1;">現在のハッシュで画像を生成</button>
-        
-	<button onclick="closeChainModal()" style="margin-top:10px; background:#666;">閉じる</button>
-
+        <button onclick="closeChainModal()" style="margin-top:10px; background:#666;">閉じる</button>
     </div>
 </div>
 
 <div id="terms-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:5000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px; max-height:80vh; overflow-y:auto;">
-        <h3 id="terms-title" style="margin-top:0;"></h3>
-        <div id="terms-content" style="font-size:13px; text-align:left; line-height:1.6; white-space:pre-wrap; color:#333;"></div>
-        <button onclick="document.getElementById('terms-modal').style.display='none'" style="margin-top:20px; background:#666; color:white; border:none; padding:10px; width:100%; border-radius:6px; cursor:pointer;">閉じる</button>
+        <h3 id="terms-title"></h3>
+        <div id="terms-content" style="font-size:13px; line-height:1.6; white-space:pre-wrap;"></div>
+        <button onclick="document.getElementById('terms-modal').style.display='none'" style="margin-top:20px; background:#666;">閉じる</button>
     </div>
 </div>
 
@@ -213,8 +182,7 @@
     const authSection = document.getElementById('auth-section');
     const mainSection = document.getElementById('main-section');
     const loadingScreen = document.getElementById('loading-screen');
-
-    let currentRangeDays = 0; 
+    let currentRangeDays = 0;
 
     async function generateHash(text) {
         const msgUint8 = new TextEncoder().encode(text);
@@ -222,33 +190,10 @@
         return Array.from(new Uint8Array(hashBuffer)).map(b => b.toString(16).padStart(2, '0')).join('');
     }
 
-// パスワード再設定用の単語リスト（簡易版：実際にはもっと増やせます）
-const wordList = ["apple", "bird", "cloud", "dance", "earth", "forest", "grape", "house", "iron", "jump", "knife", "lemon", "mountain", "night", "ocean", "piano", "river", "stone", "tiger", "under", "valley", "water", "young", "zebra"];
+    const wordList = ["apple", "bird", "cloud", "dance", "earth", "forest", "grape", "house", "iron", "jump", "knife", "lemon", "mountain", "night", "ocean", "piano", "river", "stone", "tiger", "under", "valley", "water", "young", "zebra"];
+    function generateSeedPhrase() { return Array.from({length:12}, () => wordList[Math.floor(Math.random()*wordList.length)]).join(" "); }
 
-function generateSeedPhrase() {
-    let phrase = [];
-    for (let i = 0; i < 12; i++) {
-        const randomIndex = Math.floor(Math.random() * wordList.length);
-        phrase.push(wordList[randomIndex]);
-    }
-    return phrase.join(" ");
-}
-
-
-    function playBeep() {
-        try {
-            const ctx = new (window.AudioContext || window.webkitAudioContext)();
-            const osc = ctx.createOscillator();
-            const gain = ctx.createGain();
-            osc.connect(gain); gain.connect(ctx.destination);
-            osc.frequency.setValueAtTime(880, ctx.currentTime);
-            gain.gain.setValueAtTime(0, ctx.currentTime + 0.05);
-            gain.gain.linearRampToValueAtTime(0, ctx.currentTime + 0.3);
-            osc.start(); osc.stop(ctx.currentTime + 0.3);
-        } catch(e) {}
-    }
-
-    mySupabase.auth.onAuthStateChange(async (event, session) => {
+    mySupabase.auth.onAuthStateChange((event, session) => {
         loadingScreen.classList.add('hidden');
         if (session) { authSection.classList.add('hidden'); mainSection.classList.remove('hidden'); loadEntries(); }
         else { authSection.classList.remove('hidden'); mainSection.classList.add('hidden'); }
@@ -260,201 +205,72 @@ function generateSeedPhrase() {
     };
 
     document.getElementById('btn-signup').onclick = async () => {
-    const email = document.getElementById('email').value;
-    const password = document.getElementById('password').value;
-    
-    if (!email || !password) return alert("メールとパスワードを入力してください");
-
-    const phrase = generateSeedPhrase();
-    
-    // ユーザーにフレーズを覚えさせるための確認
-    if (confirm("【重要】パスワード再設定用のフレーズです。必ず控えてください：\n\n" + phrase + "\n\n控えましたか？⚠️二度と表示されません")) {
-        const { error } = await mySupabase.auth.signUp({
-            email,
-            password,
-            options: {
-                data: { recovery_phrase: phrase } // Supabaseのメタデータに保存
-            }
-        });
-        if (error) alert(error.message);
-        else alert("登録完了✅");
-    }
-};
-
-    // --- パスワード再設定（リカバリーフレーズ方式）の処理 ---
-
-    // 1. リンクをクリックした時にモーダルを開く
-    document.getElementById('link-reset').onclick = (e) => {
-    e.preventDefault();
-    // モーダル内の各入力欄を空にする（IDを新しいものに合わせる）
-    document.getElementById('recovery-email').value = '';
-    document.getElementById('input-phrase').value = '';
-    document.getElementById('recovery-new-password').value = ''; // ここを修正
-    
-    document.getElementById('recovery-modal').style.display = 'flex';
-};
-
-
-    // 2. 更新ボタンを押した時の処理
-    document.getElementById('btn-execute-recovery').onclick = async () => {
-    // モーダル内の新しいIDから値を取得
-    const email = document.getElementById('recovery-email').value.trim();
-    const inputPhrase = document.getElementById('input-phrase').value.trim();
-    const newPassword = document.getElementById('recovery-new-password').value;
-
-    if (!email || !inputPhrase || !newPassword) {
-        return alert("全ての項目を正しく入力してください");
-    }
-
-    try {
-        // SQL関数を呼び出し
-        const { data, error } = await mySupabase.rpc('verify_and_update_password', {
-            p_email: email,
-            p_phrase: inputPhrase,
-            p_new_password: newPassword
-        });
-
-        if (error) throw error;
-
-        if (data === true) {
-            alert("成功：パスワードが更新されました！\n新しいパスワードでログインしてください。");
-            document.getElementById('recovery-modal').style.display = 'none';
-        } else {
-            alert("エラー：メールアドレスまたはフレーズが一致しません。");
-        }
-    } catch (err) {
-        alert("実行エラー: " + err.message);
-    }
-};
-
-
-    document.getElementById('btn-logout').onclick = async () => { await mySupabase.auth.signOut(); };
-
-        // アカウント削除（退会）処理
-    document.getElementById('btn-delete-account').onclick = async () => {
-        const { data: { user } } = await mySupabase.auth.getUser();
-        if (!user) return;
-
-        const confirmFirst = confirm("本当に退会しますか？\nこれまでの全記録、およびアカウント情報がサーバーから完全に削除されます。この操作は取り消せません。");
-        if (!confirmFirst) return;
-
-        const confirmSecond = confirm("【最終確認】\n本当に削除してよろしいですか？");
-        if (!confirmSecond) return;
-
-        try {
-            // 1. ユーザー自身の記録を削除（テーブル名が 'entries' の場合）
-            const { error: dbError } = await mySupabase
-                .from('entries')
-                .delete()
-                .eq('user_id', user.id);
-
-            if (dbError) throw dbError;
-
-            // 2. Authアカウントを削除するSQL関数（RPC）を呼び出し
-            const { error: authError } = await mySupabase.rpc('delete_user_account');
-
-            if (authError) {
-                console.error("Auth削除エラー:", authError);
-                // 権限の問題でAuthが消せなくても、まずはログアウトさせてデータを保護
-            }
-
-            // 3. ログアウトして画面を更新
-            await mySupabase.auth.signOut();
-            alert("退会手続きが完了し、全てのデータが消去されました。");
-            location.reload();
-
-        } catch (err) {
-            alert("エラーが発生しました: " + err.message);
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        if (!email || !password) return alert("入力してください");
+        const phrase = generateSeedPhrase();
+        if (confirm("パスワード再設定用のフレーズです。必ず控えてください：\n\n" + phrase)) {
+            const { error } = await mySupabase.auth.signUp({ email, password, options: { data: { recovery_phrase: phrase } } });
+            if (error) alert(error.message); else alert("登録完了✅");
         }
     };
 
+    document.getElementById('link-reset').onclick = (e) => { e.preventDefault(); document.getElementById('recovery-modal').style.display='flex'; };
+    document.getElementById('btn-execute-recovery').onclick = async () => {
+        const { data, error } = await mySupabase.rpc('verify_and_update_password', {
+            p_email: document.getElementById('recovery-email').value,
+            p_phrase: document.getElementById('input-phrase').value,
+            p_new_password: document.getElementById('recovery-new-password').value
+        });
+        if (error) alert(error.message); else if(data) { alert("更新完了"); document.getElementById('recovery-modal').style.display='none'; } else alert("不一致");
+    };
 
+    document.getElementById('btn-logout').onclick = () => mySupabase.auth.signOut();
     document.getElementById('btn-save').onclick = async () => {
         const content = document.getElementById('content').value;
         const stamp = document.querySelector('input[name="stamp"]:checked').value;
-        if (!content) return alert("内容を入力してください");
         const { data: { user } } = await mySupabase.auth.getUser();
-        const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", hour12: false }).replace(/\//g, "-");
-        const contentHash = await generateHash(`${nowJst}-${user.id}-${content}-${stamp}`);
-        const proofHash = await generateHash(`${nowJst}-${user.id}-${stamp}-${contentHash}`);
-        const { error } = await mySupabase.from('entries').insert([{ content, stamp, user_id: user.id, display_time: nowJst, hash: contentHash, proof_hash: proofHash }]);
-        if (error) alert(error.message); else { document.getElementById('content').value = ''; loadEntries(); }
+        const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo" }).replace(/\//g, "-");
+        const h1 = await generateHash(`${nowJst}-${user.id}-${content}-${stamp}`);
+        const h2 = await generateHash(`${nowJst}-${user.id}-${stamp}-${h1}`);
+        await mySupabase.from('entries').insert([{ content, stamp, user_id: user.id, display_time: nowJst, hash: h1, proof_hash: h2 }]);
+        document.getElementById('content').value = ''; loadEntries();
     };
 
-    window.setRange = (days) => {
-        currentRangeDays = days;
-        document.querySelectorAll('.range-btn').forEach(btn => btn.style.background = '#666');
-        const activeBtn = document.getElementById(`range-${days}`);
-        if (activeBtn) activeBtn.style.background = '#007bff';
-        loadEntries();
-    };
+    window.setRange = (days) => { currentRangeDays = days; document.querySelectorAll('.range-btn').forEach(b => b.style.background='#666'); document.getElementById(`range-${days}`).style.background='#007bff'; loadEntries(); };
 
     async function loadEntries() {
         const { data: { user } } = await mySupabase.auth.getUser();
-        if (!user) return;
         const searchTerm = document.getElementById('search').value;
         const dateTerm = document.getElementById('date-search').value;
-
         let query = mySupabase.from('entries').select('*').eq('user_id', user.id);
-        
-        if (searchTerm) {
-            if (searchTerm.length === 64) { query = query.eq('hash', searchTerm); }
-            else { query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`); }
-        }
-
-        if (dateTerm) {
-            query = query.gte('created_at', `${dateTerm}T00:00:00+09:00`).lte('created_at', `${dateTerm}T23:59:59+09:00`);
-        } else if (currentRangeDays > 0) {
-            const dateLimit = new Date();
-            dateLimit.setDate(dateLimit.getDate() - currentRangeDays);
-            query = query.gte('created_at', dateLimit.toISOString());
-        }
-
-        const { data, error } = await query.order('created_at', { ascending: false });
-        if (error) return;
-
-// 全期間の総ログ数を表示（data.length は現在の取得件数）
-document.getElementById('total-log-count').innerText = data.length;
-
-// ついでに、100件に近づくと色が変わるような演出も可能です（任意）
-if (data.length >= 90) {
-    document.getElementById('total-log-container').style.color = '#dc3545'; // リーチで赤く
-} else {
-    document.getElementById('total-log-container').style.color = '#007bff';
-}
-// -----------------------
-
+        if (searchTerm) query = query.or(`content.ilike.%${searchTerm}%,stamp.eq.${searchTerm}`);
+        if (dateTerm) query = query.gte('created_at', `${dateTerm}T00:00:00`).lte('created_at', `${dateTerm}T23:59:59`);
+        else if (currentRangeDays > 0) { const d = new Date(); d.setDate(d.getDate()-currentRangeDays); query = query.gte('created_at', d.toISOString()); }
+        const { data } = await query.order('created_at', { ascending: false });
+        if(!data) return;
+        document.getElementById('total-log-count').innerText = data.length;
         const counts = { "🍽️":0, "☀️":0, "💤":0, "🛁":0, "💊":0 };
         data.forEach(e => { if(e.stamp in counts) counts[e.stamp]++; });
-        document.getElementById('count-meal').innerText = counts["🍽️"];
-        document.getElementById('count-active').innerText = counts["☀️"];
-        document.getElementById('count-sleep').innerText = counts["💤"];
-        document.getElementById('count-bath').innerText = counts["🛁"];
-        document.getElementById('count-med').innerText = counts["💊"];
-
+        Object.keys(counts).forEach(k => {
+            const idMap = {"🍽️":"count-meal","☀️":"count-active","💤":"count-sleep","🛁":"count-bath","💊":"count-med"};
+            if(idMap[k]) document.getElementById(idMap[k]).innerText = counts[k];
+        });
         document.getElementById('entries-container').innerHTML = data.map(e => `
             <div class="entry">
                 <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
                 <div style="display:flex; gap:10px;">
                     <div style="font-size:20px;">${e.stamp || '📝'}</div>
                     <div style="flex:1;">
-                        <div style="font-size:15px;">${e.content.replace(/\n/g,'<br>')}</div>
+                        <div>${e.content}</div>
                         <small style="color:#999;">${e.display_time}</small>
                     </div>
                 </div>
-                <button onclick="showHash('${e.hash}')" style="background:none; color:#ccc; font-size:16px; width:auto; margin:0; padding:5px; position:absolute; bottom:5px; right:5px;">#️⃣</button>
-            </div>
-        `).join('');
+                <button onclick="showHash('${e.hash}')" style="background:none; color:#ccc; width:auto; position:absolute; bottom:5px; right:5px;">#️⃣</button>
+            </div>`).join('');
     }
 
-    window.deleteEntry = async (id) => { if (confirm("削除しますか？")) { await mySupabase.from('entries').delete().eq('id', id); loadEntries(); } };
-    
-    function clearSearch() { 
-        document.getElementById('search').value = ''; 
-        document.getElementById('date-search').value = ''; 
-        setRange(0); 
-    }
-
+    window.deleteEntry = async (id) => { if (confirm("削除？")) { await mySupabase.from('entries').delete().eq('id', id); loadEntries(); } };
     window.showUserId = async () => {
         const { data: { user } } = await mySupabase.auth.getUser();
         document.getElementById('display-user-id').innerText = user.id;
@@ -462,306 +278,71 @@ if (data.length >= 90) {
         new QRCode(document.getElementById('id-qrcode-container'), { text: user.id, width: 160, height: 160 });
         document.getElementById('id-modal').style.display = 'flex';
     };
-
-    // 利用規約を表示する関数
-    window.showTerms = () => {
-        const terms = `【Sha256og(シャニゴログ)利用規約】
-
-第1条（自己責任）
-ユーザーは本サービス(Sha256og)を自己の責任において利用するものとします。
-
-第2条（ハッシュ証明）
-本サービスが生成するハッシュ値は、記録時のデータの同一性を数学的に証明するものですが、法的証拠能力を保証するものではありません。
-
-第3条（削除と復元）
-1. ユーザーは自身の記録をいつでも削除できます。
-2. 一度削除されたデータは、理由を問わず一切復元できません。重要な記録は各自で管理してください。
-3. ユーザーがリカバリーフレーズを紛失した場合、パスワードの再設定およびアカウントの復旧は不可能となります。運営側でのフレーズ再発行や強制解除は行いません。
-
-第4条（免責事項）
-システム障害やメンテナンスによるデータ消失やサービス停止について、当方は一切の責任を負いません。
-
-第5条（準拠法）
-本規約は日本法に基づき解釈されるものとします。`;
-
-        document.getElementById('terms-title').innerText = "利用規約";
-        document.getElementById('terms-content').innerText = terms;
-        document.getElementById('terms-modal').style.display = 'flex';
-    };
-
-    // プライバシーポリシーを表示する関数（ついでに作っておきました）
-    window.showPrivacy = () => {
-    const privacy = `【Sha256og プライバシーポリシー】
-
-1. データの収集
-本サービスは、アカウント作成および認証のために「メールアドレス」を、サービス提供のために「入力されたログ内容（およびスタンプ、タイムスタンプ）」を収集・保存します。
-
-2. データの利用目的
-収集したデータは、以下の目的以外には利用しません。
-・ユーザー認証およびアカウント管理
-・本サービスにおけるログの記録、ハッシュ値の生成、および検証機能の提供
-
-3. データの管理と安全管理措置
-・ログデータは、SHA-256アルゴリズムを用いてハッシュ化され、その整合性を担保します。
-・本サービスはバックエンドにSupabase（Supabase, Inc.）を利用しており、データは同社の提供する安全なインフラストラクチャ上で管理されます。
-
-4. 第三者への提供
-法令に基づく場合、またはユーザーの同意がある場合を除き、個人情報を第三者に提供することはありません。
-
-5. データの削除権
-ユーザーは、本サービス内の退会機能を利用することで、サーバー上のメールアドレス、パスワード、および全ての投稿データを即時に、かつ恒久的に削除することができます。
-
-6. お問い合わせ
-本ポリシーに関するお問い合わせは、サービス内の管理者までご連絡ください。`;
-
-    document.getElementById('terms-title').innerText = "Sha256og プライバシーポリシー";
-    document.getElementById('terms-content').innerText = privacy;
-    document.getElementById('terms-modal').style.display = 'flex';
-};
-
-
     window.closeIdModal = () => document.getElementById('id-modal').style.display = 'none';
 
-    window.showHash = async (hash) => {
-        const { data } = await mySupabase.from('entries').select('*').eq('hash', hash).single();
-        const targetData = data.hash;
+    window.showHash = (hash) => {
         document.getElementById('qrcode-container').innerHTML = '';
-        new QRCode(document.getElementById('qrcode-container'), { text: targetData, width: 200, height: 200 });
-        
-        document.getElementById('qr-info').innerHTML = `
-            <div style="margin-bottom:8px;"><b>RECORD HASH:</b></div>
-            <div style="background:#eee; padding:8px; border-radius:4px; font-family:monospace; word-break:break-all; font-size:10px;">${targetData}</div>
-            <button onclick="copyToClipboard('${targetData}')" style="margin-top:10px; background:#007bff; padding:8px; font-size:14px;">📋 ハッシュをコピー</button>
-        `;
+        new QRCode(document.getElementById('qrcode-container'), { text: hash, width: 200, height: 200 });
+        document.getElementById('qr-info').innerHTML = `<code style="font-size:10px;">${hash}</code>`;
         document.getElementById('qr-modal').style.display = 'flex';
     };
     window.closeQr = () => document.getElementById('qr-modal').style.display = 'none';
-    window.copyToClipboard = (text) => {
-        navigator.clipboard.writeText(text).then(() => alert("コピーしました！検索窓に貼り付けて使えます。"));
-    };
 
-    let html5QrCode = null;
-    document.getElementById('btn-scan-start').onclick = () => {
-        document.getElementById('scan-modal').style.display = 'flex';
-        html5QrCode = new Html5Qrcode("reader");
-        html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, onScanSuccess);
-    };
-    async function stopScan() { if (html5QrCode) { await html5QrCode.stop(); html5QrCode = null; } document.getElementById('scan-modal').style.display = 'none'; }
-
-    async function onScanSuccess(decodedText) {
-        await stopScan();
-        const { data } = await mySupabase.from('entries').select('*').eq('hash', decodedText).single();
-        if (data) {
-            playBeep();
-            document.getElementById('verify-detail').innerHTML = `
-                <p style="margin:5px 0;"><b>確定時刻:</b><br>${data.display_time}</p>
-                <p style="margin:5px 0;"><b>スタンプ:</b> ${data.stamp ? data.stamp : 'なし'}</p>
-                <div style="margin-top:10px; padding:10px; background:#f0f2f5; border-radius:8px; word-break:break-all;">
-                    <b>作成者ID:</b><br><code style="font-size:11px;">${data.user_id}</code>
-                </div>
-                <div style="margin-top:10px; padding:10px; border-top:1px dashed #ccc; word-break:break-all; opacity:0.7;">
-                    <b>本文ハッシュ:</b><br><code style="font-size:10px;">${data.hash}</code>
-                </div>
-            `;
-            document.getElementById('verify-success').style.display = 'flex';
-        } else { alert("⚠️ 未登録のハッシュです"); }
+    async function showChainVerify() {
+        const { data: { user } } = await mySupabase.auth.getUser();
+        const { data } = await mySupabase.from('entries').select('hash').eq('user_id', user.id).order('created_at', { ascending: true });
+        if (!data || data.length === 0) return alert("記録なし");
+        const finalHash = await generateHash(data.map(e => e.hash).join(''));
+        document.getElementById('final-chain-hash').innerText = finalHash;
+        document.getElementById('chain-modal').style.display = 'flex';
     }
 
-async function showChainVerify() {
-    const { data: { user } } = await mySupabase.auth.getUser();
-    // 1. 全ログを古い順（作成順）に取得
-    const { data, error } = await mySupabase
-        .from('entries')
-        .select('hash')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: true });
-
-    if (error || !data || data.length === 0) return alert("記録がありません");
-
-    // 2. ブロックチェーンの再構築
-    // 全てのハッシュを一つの長い文字列として結合する
-    let combinedString = "";
-    data.forEach(entry => {
-        combinedString += entry.hash; 
-    });
-
-    // 3. 結合した文字列から最終ハッシュを生成
-    const finalHash = await generateHash(combinedString);
-
-    // 4. モーダルに表示
-    document.getElementById('final-chain-hash').innerText = finalHash;
-    document.getElementById('chain-modal').style.display = 'flex';
-}
-
-/**
- * ハッシュ値から画像を生成するエンジン（金文字刻印版）
- */
-function generateShaPattern(hash, canvasId) {
-    const canvas = document.getElementById(canvasId);
-    if (!canvas) return null;
-    const ctx = canvas.getContext('2d');
-    const w = canvas.width;
-    const h = canvas.height;
-
-    // --- 1. キャンバスの初期化 ---
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.clearRect(0, 0, w, h);
-    ctx.fillStyle = '#050510';
-    ctx.fillRect(0, 0, w, h);
-
-    // --- 2. 万華鏡模様の描画 ---
-    const hue1 = parseInt(hash.substring(0, 2), 16) % 360;
-    const sectors = (parseInt(hash.substring(2, 4), 16) % 7) + 6; 
-
-    ctx.translate(w / 2, h / 2);
-    ctx.globalCompositeOperation = 'lighter';
-
-    for (let i = 0; i < sectors; i++) {
-        ctx.rotate((Math.PI * 2) / sectors);
-        for (let j = 0; j < hash.length - 12; j += 6) {
-            const x1 = (parseInt(hash.substring(j, j + 2), 16) - 128) * 1.8;
-            const y1 = (parseInt(hash.substring(j + 2, j + 4), 16) - 128) * 1.8;
-            const cp1x = parseInt(hash.substring(j + 4, j + 6), 16) * 1.2;
-            const cp2x = parseInt(hash.substring(j + 6, j + 8), 16) * 1.2;
-            
-            ctx.beginPath();
-            const grad = ctx.createLinearGradient(0, 0, x1, y1);
-            grad.addColorStop(0, `hsla(${hue1}, 100%, 70%, 0)`); 
-            grad.addColorStop(0.5, `hsla(${hue1 + x1}, 100%, 80%, 0.7)`);
-            grad.addColorStop(1, `hsla(${hue1 + y1}, 100%, 70%, 0)`); 
-            
-            ctx.strokeStyle = grad;
-            ctx.lineWidth = 2.0;
-            ctx.moveTo(0, 0);
-            ctx.bezierCurveTo(cp1x, cp2x, y1, x1, x1, y1);
-            ctx.stroke();
-
-            if (j % 12 === 0) {
-                ctx.fillStyle = `hsla(${hue1 + cp1x}, 100%, 90%, 0.8)`;
+    function generateShaPattern(hash, canvasId) {
+        const canvas = document.getElementById(canvasId);
+        const ctx = canvas.getContext('2d');
+        const w = canvas.width, h = canvas.height;
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.fillStyle = '#050510'; ctx.fillRect(0, 0, w, h);
+        const hue1 = parseInt(hash.substring(0, 2), 16) % 360;
+        const sectors = (parseInt(hash.substring(2, 4), 16) % 7) + 6;
+        ctx.translate(w / 2, h / 2);
+        ctx.globalCompositeOperation = 'lighter';
+        for (let i = 0; i < sectors; i++) {
+            ctx.rotate((Math.PI * 2) / sectors);
+            for (let j = 0; j < hash.length - 12; j += 6) {
+                const x1 = (parseInt(hash.substring(j, j + 2), 16) - 128) * 1.8;
+                const y1 = (parseInt(hash.substring(j + 2, j + 4), 16) - 128) * 1.8;
                 ctx.beginPath();
-                ctx.arc(x1, y1, 3, 0, Math.PI * 2); 
-                ctx.fill();
+                ctx.strokeStyle = `hsla(${hue1 + x1}, 100%, 70%, 0.5)`;
+                ctx.moveTo(0, 0); ctx.lineTo(x1, y1); ctx.stroke();
             }
         }
+        ctx.setTransform(1, 0, 0, 1, 0, 0);
+        ctx.globalCompositeOperation = 'source-over';
+        ctx.textAlign = "center";
+        const g = ctx.createLinearGradient(0, h-60, 0, h-20);
+        g.addColorStop(0, "#D4AF37"); g.addColorStop(0.5, "#FFFFE0"); g.addColorStop(1, "#B8860B");
+        ctx.fillStyle = g;
+        ctx.font = "bold 18px 'Courier New'";
+        ctx.fillText(hash.substring(0, 32), w/2, h/2 - 13);
+        ctx.fillText(hash.substring(32, 64), w/2, h/2 + 13);
+        ctx.font = "bold 16px sans-serif";
+        ctx.fillText(`${new Date().toLocaleDateString()} | ${document.getElementById('total-log-count').innerText} log`, w/2, h-40);
+        return canvas.toDataURL();
     }
 
-    // --- 3. 文字を描くための座標リセット ---
-    // これをしないと文字が回転してしまいます
-    ctx.setTransform(1, 0, 0, 1, 0, 0);
-    ctx.globalCompositeOperation = 'source-over'; // 文字は発光させず、ハッキリ描く
-
-    // --- 4. 文字の刻印（金文字） ---
-    ctx.font = "bold 20px 'Helvetica Neue', Helvetica, Arial, sans-serif";
-    ctx.textAlign = "center";
-    ctx.textBaseline = "middle";
-
-    const goldGrad = ctx.createLinearGradient(0, h - 60, 0, h - 20);
-    goldGrad.addColorStop(0, "#D4AF37");
-    goldGrad.addColorStop(0.3, "#FFD700");
-    goldGrad.addColorStop(0.5, "#FFFFE0");
-    goldGrad.addColorStop(0.7, "#FFD700");
-    goldGrad.addColorStop(1, "#B8860B");
-
-    ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
-    ctx.shadowBlur = 4;
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-
-    const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, "-");
-    const logCountText = `${document.getElementById('total-log-count').innerText} log`;
-    
-    // 下部の日付とログ数の描画
-    ctx.fillStyle = goldGrad;
-    ctx.fillText(`${nowJst}  |  ${logCountText}`, w / 2, h - 40);
-
-    // --- ここから書き換え（64桁フル表示） ---
-    
-    // 1行に収まらないのでフォントサイズを18pxに微調整
-    ctx.font = "bold 18px 'Courier New', Courier, monospace"; 
-    
-    // 64桁を半分（32桁）ずつに分割
-    const hashPart1 = hash.substring(0, 32);
-    const hashPart2 = hash.substring(32, 64);
-    
-    // 中央の発光グラデーション
-    const centerGrad = ctx.createLinearGradient(0, h/2 - 30, 0, h/2 + 30);
-    centerGrad.addColorStop(0, "#D4AF37");
-    centerGrad.addColorStop(0.5, "#FFFFFF"); // 中央を一番明るく
-    centerGrad.addColorStop(1, "#D4AF37");
-    ctx.fillStyle = centerGrad;
-    
-    // 中央に2行で描画（行間を26px空けています）
-    ctx.fillText(hashPart1, w / 2, h / 2 - 13);
-    ctx.fillText(hashPart2, w / 2, h / 2 + 13);
-
-    // --- ここまで ---
-
-    ctx.shadowBlur = 0;
-    ctx.shadowOffsetX = 0;
-    ctx.shadowOffsetY = 0;
-
-    return canvas.toDataURL("image/png");
-}
-
-// ボタンのクリックイベント（ここで generateShaPattern を呼び出す）
-document.getElementById('btn-generate-chain-art').onclick = function() {
-    // 1. モーダルに現在表示されている「最新のハッシュ値」をその都度取得する
-    const finalHash = document.getElementById('final-chain-hash').innerText;
-    
-    if (!finalHash || finalHash === "Calculating...") {
-        alert("ハッシュ値の計算が終わるまでお待ちください");
-        return;
-    }
-
-    // 2. 前回の画像を一旦クリアする（ここが重要！）
-    const imgElement = document.getElementById('chainPreviewImage');
-    imgElement.src = ""; 
-
-    // 3. 新しいハッシュで画像データを生成
-    const imageData = generateShaPattern(finalHash, 'chainCanvas');
-
-    // 4. 新しいデータを反映
-    if (imageData) {
-        imgElement.src = imageData;
+    document.getElementById('btn-generate-chain-art').onclick = function() {
+        const hash = document.getElementById('final-chain-hash').innerText;
+        const data = generateShaPattern(hash, 'chainCanvas');
+        document.getElementById('chainPreviewImage').src = data;
         document.getElementById('chain-image-container').style.display = 'block';
-        
-        // 5. ボタンの状態もリセット（再生成したことがわかるように）
-        this.innerText = "模様を更新しました";
-        this.style.background = "#28a745"; 
-        
-        // 2秒後にボタンのテキストを元に戻すと親切です
-        setTimeout(() => {
-            this.innerText = "現在のハッシュで画像を生成";
-            this.style.background = "#6f42c1";
-        }, 2000);
-    }
-};
+    };
 
-/**
- * チェーン検証モーダルを閉じ、中身をリセットする
- */
-function closeChainModal() {
-    document.getElementById('chain-modal').style.display = 'none';
-    
-    // 画像タグを空にする
-    const imgElement = document.getElementById('chainPreviewImage');
-    imgElement.src = ""; 
-    
-    // ★追加：Canvas自体も真っさらにしておく
-    const canvas = document.getElementById('chainCanvas');
-    const ctx = canvas.getContext('2d');
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    document.getElementById('chain-image-container').style.display = 'none';
-    
-    const genBtn = document.getElementById('btn-generate-chain-art');
-    genBtn.innerText = "現在のハッシュで画像を生成";
-    genBtn.style.background = "#6f42c1"; 
-}
-
-
+    function closeChainModal() { document.getElementById('chain-modal').style.display='none'; document.getElementById('chain-image-container').style.display='none'; }
+    function clearSearch() { document.getElementById('search').value=''; document.getElementById('date-search').value=''; loadEntries(); }
+    window.showTerms = () => { document.getElementById('terms-title').innerText="利用規約"; document.getElementById('terms-content').innerText="1.自己責任 2.データ復元不可 3.準拠法は日本法"; document.getElementById('terms-modal').style.display='flex'; };
+    window.showPrivacy = () => { document.getElementById('terms-title').innerText="ポリシー"; document.getElementById('terms-content').innerText="データの収集と安全な管理について..."; document.getElementById('terms-modal').style.display='flex'; };
 
 </script>
-
 </body>
 </html>
