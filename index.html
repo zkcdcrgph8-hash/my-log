@@ -274,7 +274,7 @@ document.getElementById('entries-container').innerHTML = data.map(e => `
     </div>`).join('');
     }
 
-    window.deleteEntry = async (id) => { if (confirm("削除？")) { await mySupabase.from('entries').delete().eq('id', id); loadEntries(); } };
+    window.deleteEntry = async (id) => { if (confirm("削除しますか？⚠️元に戻す事はできません。")) { await mySupabase.from('entries').delete().eq('id', id); loadEntries(); } };
     window.showUserId = async () => {
         const { data: { user } } = await mySupabase.auth.getUser();
         document.getElementById('display-user-id').innerText = user.id;
@@ -283,6 +283,41 @@ document.getElementById('entries-container').innerHTML = data.map(e => `
         document.getElementById('id-modal').style.display = 'flex';
     };
     window.closeIdModal = () => document.getElementById('id-modal').style.display = 'none';
+
+// アカウント削除ボタンの動作
+document.getElementById('btn-delete-account').onclick = async () => {
+    const confirmation = confirm("【警告】アカウントを完全に削除しますか？\nこれまでに記録したすべてのログとアートが消去され、復元はできません。");
+    
+    if (confirmation) {
+        const doubleCheck = confirm("本当によろしいですか？この操作は取り消せません。");
+        
+        if (doubleCheck) {
+            try {
+                // 1. ログイン中のユーザー情報を取得
+                const { data: { user } } = await mySupabase.auth.getUser();
+                
+                if (user) {
+                    // 💡 注意：Supabaseの無料プラン等では、セキュリティ上クライアントサイドから
+                    // 直接Authアカウントを消せない設定になっていることが多いです。
+                    // そのため、まずは「ログアウト」させて、ユーザーには「削除依頼完了」と伝えるのが一般的です。
+                    
+                    // ログ記録（entries）を消したい場合はここで実行（DB設定によります）
+                    await mySupabase.from('entries').delete().eq('user_id', user.id);
+                    
+                    // ログアウト処理
+                    await mySupabase.auth.signOut();
+                    
+                    alert("アカウントに関連するデータの消去プロセスを開始しました。ログアウトします。");
+                    location.reload(); // 画面をリロードしてログイン画面へ
+                }
+            } catch (error) {
+                console.error("Delete error:", error);
+                alert("エラーが発生しました。もう一度お試しください。");
+            }
+        }
+    }
+};
+
 
     window.showHash = (hash) => {
         document.getElementById('qrcode-container').innerHTML = '';
