@@ -594,7 +594,7 @@ async function showChainVerify() {
 }
 
 /**
- * ハッシュ値から画像を生成するエンジン（これが必要です！）
+ * ハッシュ値から画像を生成するエンジン（金文字刻印版）
  */
 function generateShaPattern(hash, canvasId) {
     const canvas = document.getElementById(canvasId);
@@ -603,11 +603,13 @@ function generateShaPattern(hash, canvasId) {
     const w = canvas.width;
     const h = canvas.height;
 
+    // --- 1. キャンバスの初期化 ---
     ctx.setTransform(1, 0, 0, 1, 0, 0);
     ctx.clearRect(0, 0, w, h);
     ctx.fillStyle = '#050510';
     ctx.fillRect(0, 0, w, h);
 
+    // --- 2. 万華鏡模様の描画 ---
     const hue1 = parseInt(hash.substring(0, 2), 16) % 360;
     const sectors = (parseInt(hash.substring(2, 4), 16) % 7) + 6; 
 
@@ -642,6 +644,50 @@ function generateShaPattern(hash, canvasId) {
             }
         }
     }
+
+    // --- 3. 文字を描くための座標リセット ---
+    // これをしないと文字が回転してしまいます
+    ctx.setTransform(1, 0, 0, 1, 0, 0);
+    ctx.globalCompositeOperation = 'source-over'; // 文字は発光させず、ハッキリ描く
+
+    // --- 4. 文字の刻印（金文字） ---
+    ctx.font = "bold 20px 'Helvetica Neue', Helvetica, Arial, sans-serif";
+    ctx.textAlign = "center";
+    ctx.textBaseline = "middle";
+
+    const goldGrad = ctx.createLinearGradient(0, h - 60, 0, h - 20);
+    goldGrad.addColorStop(0, "#D4AF37");
+    goldGrad.addColorStop(0.3, "#FFD700");
+    goldGrad.addColorStop(0.5, "#FFFFE0");
+    goldGrad.addColorStop(0.7, "#FFD700");
+    goldGrad.addColorStop(1, "#B8860B");
+
+    ctx.shadowColor = "rgba(0, 0, 0, 0.8)";
+    ctx.shadowBlur = 4;
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+
+    const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, "-");
+    const logCountText = `${document.getElementById('total-log-count').innerText} log`;
+    const hashText = `${hash.substring(0, 8)}...${hash.substring(hash.length - 8)}`;
+
+    ctx.fillStyle = goldGrad;
+    ctx.fillText(`${nowJst}  |  ${logCountText}`, w / 2, h - 40);
+
+    ctx.font = "bold 24px 'Courier New', Courier, monospace"; 
+    const centerGrad = ctx.createLinearGradient(0, h/2 - 20, 0, h/2 + 20);
+    centerGrad.addColorStop(0, "#FFD700");
+    centerGrad.addColorStop(0.5, "#FFFFFF");
+    centerGrad.addColorStop(1, "#FFD700");
+    ctx.fillStyle = centerGrad;
+    
+    ctx.fillText(hashText, w / 2, h / 2);
+
+    ctx.shadowBlur = 0;
+    ctx.shadowOffsetX = 0;
+    ctx.shadowOffsetY = 0;
+
+    // --- 5. 最後に1回だけデータを返却 ---
     return canvas.toDataURL("image/png");
 }
 
