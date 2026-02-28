@@ -30,7 +30,6 @@
 </div>
 
 <div id="auth-section" class="card hidden">
-
     <h2 style="text-align:center;">Sha256og</h2>
     <input type="email" id="email" placeholder="メールアドレス">
     <input type="password" id="password" placeholder="パスワード">
@@ -39,50 +38,22 @@
     <p style="text-align:center; font-size: 14px;">
         <a href="#" id="link-reset" style="color: #666;">パスワードを忘れた場合はこちら</a>
     </p>
-　　<p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">
-    新規登録により、<a href="#" onclick="showTerms()">利用規約</a>と
-    <a href="#" onclick="showPrivacy()">ポリシー</a>に同意したことになります。
-</p>
-</div>
-
-<div id="main-section" class="hidden" style="max-width: 500px; margin: 0 auto; padding: 20px;">
-
-
-<div id="recovery-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; justify-content:center; align-items:center;">
-    <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:15px; width:90%; max-width:400px; text-align:center;">
-        <h3 style="margin-top:0;">パスワード再設定</h3>
-        <p style="font-size:12px; color:#666; text-align:left; margin-bottom:15px;">登録済みのメールアドレス、12個のフレーズ、新しいパスワードを入力してください。</p>
-        
-        <input type="email" id="recovery-email" placeholder="メールアドレス" style="margin-bottom:10px; width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-        
-        <textarea id="input-phrase" placeholder="12個のフレーズ（例: apple bird cloud...）" style="width:100%; height:80px; margin-bottom:10px; padding:10px; border:1px solid #ddd; border-radius:6px; font-family:monospace;"></textarea>
-        
-        <input type="password" id="recovery-new-password" placeholder="新しいパスワード" style="margin-bottom:15px; width:100%; padding:10px; border:1px solid #ddd; border-radius:6px;">
-        
-        <button id="btn-execute-recovery" style="background:#28a745; width:100%; color:white; border:none; padding:12px; border-radius:6px; cursor:pointer; font-weight:bold;">パスワードを更新する</button>
-        <button onclick="document.getElementById('recovery-modal').style.display='none'" style="background:none; color:#666; margin-top:10px; border:none; cursor:pointer; font-size:13px;">キャンセル</button>
-    </div>
-</div>
-
-
-<div id="main-section" class="hidden">
-
-
-<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-    <div style="display: flex; align-items: center; gap: 10px;">
-        <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🆔</button>
-        <h2 style="margin: 0;"></h2>
-    </div>
+    <p style="font-size: 11px; color: #999; text-align: center; margin-top: 10px;">
+        新規登録により、<a href="#" onclick="showTerms()">利用規約</a>と
+        <a href="#" onclick="showPrivacy()">ポリシー</a>に同意したことになります。
+    </p>
+</div> <div id="main-section" class="hidden" style="max-width: 500px; margin: 0 auto; padding: 20px;">
     
-    <button id="total-log-container" onclick="showChainVerify()" style="background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #ddd; cursor: pointer; width: auto;">
-    #️⃣ <span id="total-log-count">0</span> log
-</button>
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <button onclick="showUserId()" style="width: 40px; height: 40px; padding: 0; background: #fff; border: 1px solid #ddd; border-radius: 50%; font-size: 20px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">🆔</button>
+        </div>
+        
+        <button id="total-log-container" onclick="showChainVerify()" style="background: #e9ecef; padding: 5px 12px; border-radius: 20px; font-size: 14px; font-weight: bold; color: #007bff; box-shadow: 0 2px 4px rgba(0,0,0,0.1); border: 1px solid #ddd; cursor: pointer; width: auto;">
+            #️⃣ <span id="total-log-count">0</span> log
+        </button>
 
-
-    <button id="btn-logout" class="logout-btn">ログアウト</button>
-</div>
-    
-
+        <button id="btn-logout" class="logout-btn">ログアウト</button>
     </div>
 
     <div class="card" id="entry-card">
@@ -106,25 +77,17 @@
         <button onclick="setRange(28)" class="range-btn" id="range-28" style="background:#666; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0;">4w</button>
     </div>
 
-
-
-        <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: stretch; height: 46px;">
+    <div style="display: flex; gap: 8px; margin-bottom: 15px; align-items: stretch; height: 46px;">
         <div style="position: relative; flex: 1;">
             <input type="text" id="search" class="search-box" style="width: 100%; height: 100%; margin: 0; padding-left: 35px;" placeholder="検索..." oninput="loadEntries()">
             <span style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); pointer-events: none;">🔍</span>
         </div>
-
         <div style="position: relative; width: 46px; height: 46px; flex-shrink: 0; background: white; border: 1px solid #ddd; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; overflow: hidden;">
             <span style="font-size: 20px;">🗓️</span>
-            <input type="date" id="date-search" onchange="loadEntries();" 
-                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; margin: 0; padding: 0; transform: scale(2); origin: center;">
+            <input type="date" id="date-search" onchange="loadEntries();" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; z-index: 5; margin: 0; padding: 0; transform: scale(2); origin: center;">
         </div>
-
-        <button onclick="clearSearch()" style="width: 46px; height: 46px; flex-shrink: 0; margin: 0; background: #666; color: white; border: none; font-size: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; position: relative;">
-            🔄
-        </button>
+        <button onclick="clearSearch()" style="width: 46px; height: 46px; flex-shrink: 0; margin: 0; background: #666; color: white; border: none; font-size: 18px; border-radius: 6px; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 10; position: relative;">🔄</button>
     </div>
-
 
     <div id="stats-panel" style="margin-bottom: 20px; padding: 10px; background: white; border-radius: 10px; display: flex; justify-content: space-around; font-size: 12px;">
         <div>🍽️ <span id="count-meal">0</span></div>
@@ -137,6 +100,7 @@
     <button id="btn-scan-start" style="background:#6f42c1; margin-bottom:20px;">📷 記録を検証する</button>
     <div id="entries-container"></div>
 </div>
+
 
 <div id="id-modal" onclick="closeIdModal()" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:4000; justify-content:center; align-items:center;">
     <div onclick="event.stopPropagation()" style="background:white; padding:25px; border-radius:20px; width:85%; max-width:320px; text-align:center;">
