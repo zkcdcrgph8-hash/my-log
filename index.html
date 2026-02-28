@@ -30,6 +30,7 @@
 </div>
 
 <div id="auth-section" class="card hidden">
+
     <h2 style="text-align:center;">Sha256og</h2>
     <input type="email" id="email" placeholder="メールアドレス">
     <input type="password" id="password" placeholder="パスワード">
@@ -42,7 +43,9 @@
     新規登録により、<a href="#" onclick="showTerms()">利用規約</a>と
     <a href="#" onclick="showPrivacy()">ポリシー</a>に同意したことになります。
 </p>
+</div>
 
+<div id="main-section" class="hidden" style="max-width: 500px; margin: 0 auto; padding: 20px;">
 </div>
 
 <div id="recovery-modal" onclick="this.style.display='none'" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.8); z-index:6000; justify-content:center; align-items:center;">
@@ -184,10 +187,11 @@
             <span id="final-chain-hash">Calculating...</span>
         </div>
 
-        <div id="chain-image-container" style="display:none; margin-top:15px; text-align:center;">
+        <div id="chain-image-container" style="display:none; margin-top:20px; text-align:center;">
             <canvas id="chainCanvas" width="500" height="500" style="display:none;"></canvas>
-            <img id="chainPreviewImage" src="" style="width: 100%; border-radius: 10px; border: 1px solid #ddd;">
+            <img id="chainPreviewImage" src="" style="width: 100%; border-radius: 10px; border: 1px solid #444; cursor:pointer;">
             <p style="font-size:10px; color:#999; margin-top:5px;">この模様は現在の全記録から生成されました</p>
+            <p style="font-size:12px; color:#aaa;">画像を長押しして保存できます</p>
         </div>
         
         <button id="btn-generate-chain-art" style="margin-top:20px; background:#6f42c1;">現在のハッシュで画像を生成</button>
