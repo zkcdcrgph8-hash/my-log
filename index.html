@@ -17,7 +17,7 @@
         button:hover { background: #0056b3; }
         .secondary-btn { background: #28a745; }
         .logout-btn { background: #666; font-size: 12px; width: auto; padding: 5px 10px; border-radius: 6px; }
-        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; position: relative; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
+        .entry { background: white; padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 5px solid #007bff; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
         .del-btn { position: absolute; top: 10px; right: 10px; background: none; color: #ccc; width: auto; padding: 0; margin: 0; border: none; font-size: 18px; cursor: pointer; }
         .del-btn:hover { color: #dc3545; }
         .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
@@ -256,18 +256,22 @@
             const idMap = {"🍽️":"count-meal","☀️":"count-active","💤":"count-sleep","🛁":"count-bath","💊":"count-med"};
             if(idMap[k]) document.getElementById(idMap[k]).innerText = counts[k];
         });
-        document.getElementById('entries-container').innerHTML = data.map(e => `
-            <div class="entry">
-                <button class="del-btn" onclick="deleteEntry('${e.id}')">🗑️</button>
-                <div style="display:flex; gap:10px;">
-                    <div style="font-size:20px;">${e.stamp || '📝'}</div>
-                    <div style="flex:1;">
-                        <div>${e.content}</div>
-                        <small style="color:#999;">${e.display_time}</small>
-                    </div>
-                </div>
-                <button onclick="showHash('${e.hash}')" style="background:none; color:#ccc; width:auto; position:absolute; bottom:5px; right:5px;">#️⃣</button>
-            </div>`).join('');
+// loadEntries関数の中の innerHTML = data.map(...) の部分を差し替え
+document.getElementById('entries-container').innerHTML = data.map(e => `
+    <div class="entry" style="display: flex; align-items: flex-start; justify-content: space-between; padding-right: 10px;">
+        <div style="display: flex; gap: 12px; flex: 1;">
+            <div style="font-size: 24px; padding-top: 2px;">${e.stamp || '📝'}</div>
+            <div style="flex: 1;">
+                <div style="font-weight: 500; line-height: 1.4; margin-bottom: 4px; word-break: break-all;">${e.content}</div>
+                <small style="color: #999; font-size: 11px;">${e.display_time}</small>
+            </div>
+        </div>
+
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; margin-left: 10px;">
+            <button onclick="deleteEntry('${e.id}')" style="background: none; border: none; padding: 5px; cursor: pointer; font-size: 18px; line-height: 1; opacity: 0.3;">🗑️</button>
+            <button onclick="showHash('${e.hash}')" style="background: #f0f2f5; border: 1px solid #ddd; border-radius: 6px; padding: 4px 6px; cursor: pointer; font-size: 14px; line-height: 1; color: #666;">#️⃣</button>
+        </div>
+    </div>`).join('');
     }
 
     window.deleteEntry = async (id) => { if (confirm("削除？")) { await mySupabase.from('entries').delete().eq('id', id); loadEntries(); } };
