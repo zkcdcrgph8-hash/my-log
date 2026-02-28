@@ -669,25 +669,37 @@ function generateShaPattern(hash, canvasId) {
 
     const nowJst = new Date().toLocaleString("ja-JP", { timeZone: "Asia/Tokyo", year: 'numeric', month: '2-digit', day: '2-digit' }).replace(/\//g, "-");
     const logCountText = `${document.getElementById('total-log-count').innerText} log`;
-    const hashText = `${hash.substring(0, 8)}...${hash.substring(hash.length - 8)}`;
-
+    
+    // 下部の日付とログ数の描画
     ctx.fillStyle = goldGrad;
     ctx.fillText(`${nowJst}  |  ${logCountText}`, w / 2, h - 40);
 
-    ctx.font = "bold 24px 'Courier New', Courier, monospace"; 
-    const centerGrad = ctx.createLinearGradient(0, h/2 - 20, 0, h/2 + 20);
-    centerGrad.addColorStop(0, "#FFD700");
-    centerGrad.addColorStop(0.5, "#FFFFFF");
-    centerGrad.addColorStop(1, "#FFD700");
+    // --- ここから書き換え（64桁フル表示） ---
+    
+    // 1行に収まらないのでフォントサイズを18pxに微調整
+    ctx.font = "bold 18px 'Courier New', Courier, monospace"; 
+    
+    // 64桁を半分（32桁）ずつに分割
+    const hashPart1 = hash.substring(0, 32);
+    const hashPart2 = hash.substring(32, 64);
+    
+    // 中央の発光グラデーション
+    const centerGrad = ctx.createLinearGradient(0, h/2 - 30, 0, h/2 + 30);
+    centerGrad.addColorStop(0, "#D4AF37");
+    centerGrad.addColorStop(0.5, "#FFFFFF"); // 中央を一番明るく
+    centerGrad.addColorStop(1, "#D4AF37");
     ctx.fillStyle = centerGrad;
     
-    ctx.fillText(hashText, w / 2, h / 2);
+    // 中央に2行で描画（行間を26px空けています）
+    ctx.fillText(hashPart1, w / 2, h / 2 - 13);
+    ctx.fillText(hashPart2, w / 2, h / 2 + 13);
+
+    // --- ここまで ---
 
     ctx.shadowBlur = 0;
     ctx.shadowOffsetX = 0;
     ctx.shadowOffsetY = 0;
 
-    // --- 5. 最後に1回だけデータを返却 ---
     return canvas.toDataURL("image/png");
 }
 
