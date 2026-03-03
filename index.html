@@ -294,7 +294,7 @@ document.getElementById('btn-delete-account').onclick = async () => {
         
         if (!session) return alert("セッションがありません");
 
-        const { data, error } = await mySupabase.functions.invoke('delete-user', {
+        const { data, error } = await mySupabase.functions.invoke('smooth-handler', {
             headers: {
                 Authorization: `Bearer ${session.access_token}`
             }
