@@ -305,10 +305,13 @@ document.getElementById('btn-delete-account').onclick = async () => {
         alert("完了しました。アカウントは完全に消滅しました。");
         await mySupabase.auth.signOut();
         location.reload();
-    } catch (e) {
-        console.error(e);
-        alert("消滅に失敗しました: " + e.message);
-    }
+    // HTML側の catch ブロックを少し詳しくする
+} catch (e) {
+    console.error("詳細エラー:", e);
+    // レスポンスの中身が見れる場合は表示
+    alert("消滅に失敗しました。詳細はコンソールを確認してください。");
+}
+
 };
 
 
