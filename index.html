@@ -285,20 +285,26 @@ document.getElementById('entries-container').innerHTML = data.map(e => `
     window.closeIdModal = () => document.getElementById('id-modal').style.display = 'none';
 
 
-// アカウント削除ボタンの動作（Edge Functions 完全抹消版）
 document.getElementById('btn-delete-account').onclick = async () => {
-    if (!confirm("【最終警告】これで最後です。アカウントと全てのデータを完全に削除しますか？")) return;
+    if (!confirm("【最終警告】これで最後です。アカウントと全てのデータを宇宙の塵にしますか？")) return;
 
     try {
-        const { data: { session } } = await mySupabase.auth.getSession();
-        
-        if (!session) return alert("セッションがありません");
+        // SQLで作成した関数 'delete_self' を呼び出す
+        const { error } = await mySupabase.rpc('delete_self');
 
-        const { data, error } = await mySupabase.functions.invoke('smooth-handler', {
-            headers: {
-                Authorization: `Bearer ${session.access_token}`
-            }
-        });
+        if (error) throw error;
+
+        alert("完了しました。アカウントは完全に消滅しました。");
+        
+        // ログアウト処理をしてリロード
+        await mySupabase.auth.signOut();
+        location.reload();
+    } catch (e) {
+        console.error("消滅失敗:", e);
+        alert("消滅に失敗しました: " + e.message);
+    }
+};
+
 
         if (error) throw error;
 
