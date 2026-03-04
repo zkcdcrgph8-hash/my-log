@@ -486,9 +486,29 @@ function generateShaPattern(hash, canvasId) {
     document.getElementById('terms-modal').style.display = 'flex';
 };
 
-    window.showPrivacy = () => { document.getElementById('terms-title').innerText="プライバシーポリシー";
-    document.getElementById('terms-content').innerText="データの収集と安全な管理について...";
-    document.getElementById('terms-modal').style.display='flex'; };
+window.showPrivacy = () => {
+    document.getElementById('terms-title').innerText = "ポリシー";
+    document.getElementById('terms-content').innerText = `
+1. 収集する情報：
+本サービスでは、以下の情報を収集・保存します。
+・メールアドレス（アカウント識別および認証用）
+・ユーザーが入力したログ内容、スタンプ、タイムスタンプ
+・暗号化されたハッシュ値
+
+2. データの利用目的：
+収集した情報は、サービスの提供、本人確認、およびセキュリティ維持のためにのみ利用します。
+
+3. データの管理（Supabaseの利用）：
+ユーザーのデータは、クラウドプラットフォーム「Supabase」のセキュアなデータベースに保存されます。パスワードは強力なハッシュアルゴリズムにより保護され、開発者が生のパスワードを見ることはできません。
+
+4. データの削除：
+ユーザーは、アプリ内の「アカウント削除」機能を利用することで、いつでも自身のデータを即時に、かつ完全に消滅させることができます。
+
+5. 第三者提供の制限：
+法令に基づく場合を除き、ユーザーの同意なく個人情報を第三者に提供することはありません。
+`;
+    document.getElementById('terms-modal').style.display = 'flex';
+};
 
 let html5QrCode;
 
