@@ -462,7 +462,7 @@ function generateShaPattern(hash, canvasId) {
     function closeChainModal() { document.getElementById('chain-modal').style.display='none'; document.getElementById('chain-image-container').style.display='none'; }
     function clearSearch() { document.getElementById('search').value=''; document.getElementById('date-search').value=''; loadEntries(); }
     window.showTerms = () => { document.getElementById('terms-title').innerText="利用規約";
-    document.getElementById('terms-content').innerText="
+    document.getElementById('terms-content').innerText='
 1. 本サービスの目的：
 本サービスは、ハッシュ値を用いた記録の真正性証明および自己管理を目的としたログ保存ツールです。
 \n2.自己責任の原則：
@@ -475,7 +475,7 @@ function generateShaPattern(hash, canvasId) {
 開発者は、本サービスの使用により生じた直接的、間接的な損害（データ消失、漏洩等）について、故意または重過失がある場合を除き、一切の責任を負いません。
 \n6. サービスの停止・変更：
 本サービスは予告なく内容の変更、停止、または終了することがあります。
-";
+';
     document.getElementById('terms-modal').style.display='flex'; };
     window.showPrivacy = () => { document.getElementById('terms-title').innerText="プライバシーポリシー";
     document.getElementById('terms-content').innerText="データの収集と安全な管理について...";
