@@ -232,6 +232,11 @@
     // 入力するたびに高さを調整するよう指示
     document.getElementById('content').addEventListener('input', autoResizeTextarea);
     document.getElementById('btn-save').onclick = async () => {
+    // 「📷 記録を検証する」ボタンを押した時の処理
+    document.getElementById('btn-scan-start').onclick = () => {
+    document.getElementById('scan-modal').style.display = 'flex';
+    startScan(); // カメラを起動する関数を呼ぶ
+    };
         const content = document.getElementById('content').value;
         const stamp = document.querySelector('input[name="stamp"]:checked').value;
         const { data: { user } } = await mySupabase.auth.getUser();
@@ -457,6 +462,53 @@ function generateShaPattern(hash, canvasId) {
     function clearSearch() { document.getElementById('search').value=''; document.getElementById('date-search').value=''; loadEntries(); }
     window.showTerms = () => { document.getElementById('terms-title').innerText="利用規約"; document.getElementById('terms-content').innerText="1.自己責任 2.データ復元不可 3.準拠法は日本法"; document.getElementById('terms-modal').style.display='flex'; };
     window.showPrivacy = () => { document.getElementById('terms-title').innerText="ポリシー"; document.getElementById('terms-content').innerText="データの収集と安全な管理について..."; document.getElementById('terms-modal').style.display='flex'; };
+
+let html5QrCode;
+
+async function startScan() {
+    html5QrCode = new Html5Qrcode("reader");
+    const config = { fps: 10, qrbox: { width: 250, height: 250 } };
+    
+    try {
+        await html5QrCode.start({ facingMode: "environment" }, config, onScanSuccess);
+    } catch (err) {
+        alert("カメラの起動に失敗しました: " + err);
+        stopScan();
+    }
+}
+
+function stopScan() {
+    if (html5QrCode) {
+        html5QrCode.stop().then(() => {
+            document.getElementById('scan-modal').style.display = 'none';
+        }).catch(err => console.error(err));
+    } else {
+        document.getElementById('scan-modal').style.display = 'none';
+    }
+}
+
+// QRコードが読み取れた時の処理
+async function onScanSuccess(decodedText) {
+    stopScan();
+    
+    // 読み取ったハッシュ値がDBにあるか照合
+    const { data, error } = await mySupabase
+        .from('entries')
+        .select('*')
+        .eq('hash', decodedText)
+        .single();
+
+    if (data) {
+        document.getElementById('verify-detail').innerHTML = `
+            <p><b>内容:</b> ${data.content}</p>
+            <p><b>日時:</b> ${data.display_time}</p>
+            <p><b>ハッシュ:</b> <br><small>${data.hash}</small></p>
+        `;
+        document.getElementById('verify-success').style.display = 'flex';
+    } else {
+        alert("⚠️ 警告：この記録はデータベースに見つかりません。改ざんされている可能性があります。");
+    }
+}
 
 </script>
 </body>
