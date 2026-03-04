@@ -461,22 +461,31 @@ function generateShaPattern(hash, canvasId) {
 
     function closeChainModal() { document.getElementById('chain-modal').style.display='none'; document.getElementById('chain-image-container').style.display='none'; }
     function clearSearch() { document.getElementById('search').value=''; document.getElementById('date-search').value=''; loadEntries(); }
-    window.showTerms = () => { document.getElementById('terms-title').innerText="利用規約";
-    document.getElementById('terms-content').innerText=`
+    window.showTerms = () => {
+    document.getElementById('terms-title').innerText = "利用規約";
+    // ここを ` (バッククォート) に変更
+    document.getElementById('terms-content').innerText = `
 1. 本サービスの目的：
 本サービスは、ハッシュ値を用いた記録の真正性証明および自己管理を目的としたログ保存ツールです。
-\n2.自己責任の原則：
+
+2.自己責任の原則：
 ユーザーは、自身のログイン情報およびリカバリーフレーズを厳重に管理するものとします。フレーズを紛失した場合、いかなる理由があってもデータの復元やパスワードの再設定はできません。
-\n3. データの真正性：
+
+3. データの真正性：
 本サービスは記録時にハッシュ値を生成しますが、これは「その時点でその内容が存在したこと」を証明するものであり、内容自体の真実性を保証するものではありません。
-\n4. 禁止事項：
-法令に違反する行為、公序良俗に反する内容の記録、またはシステムに過度な負荷をかける行為を禁止します。
-\n5. 免責事項：
+
+4. 禁止事項：
+法令に違反する行為、公序良俗に反する内容の記録、またはシステムに過度な負荷を考慮する行為を禁止します。
+
+5. 免責事項：
 開発者は、本サービスの使用により生じた直接的、間接的な損害（データ消失、漏洩等）について、故意または重過失がある場合を除き、一切の責任を負いません。
-\n6. サービスの停止・変更：
+
+6. サービスの停止・変更：
 本サービスは予告なく内容の変更、停止、または終了することがあります。
-`;
-    document.getElementById('terms-modal').style.display='flex'; };
+`; // ここも ` で閉じる
+    document.getElementById('terms-modal').style.display = 'flex';
+};
+
     window.showPrivacy = () => { document.getElementById('terms-title').innerText="プライバシーポリシー";
     document.getElementById('terms-content').innerText="データの収集と安全な管理について...";
     document.getElementById('terms-modal').style.display='flex'; };
