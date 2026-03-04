@@ -285,8 +285,15 @@ document.getElementById('entries-container').innerHTML = data.map(e => `
     window.closeIdModal = () => document.getElementById('id-modal').style.display = 'none';
 
 
+// アカウント完全削除ボタンの処理
 document.getElementById('btn-delete-account').onclick = async () => {
     if (!confirm("【最終警告】これで最後です。アカウントと全てのデータを宇宙の塵にしますか？")) return;
+
+    // mySupabaseが定義されているかチェック
+    if (typeof mySupabase === 'undefined') {
+        alert("エラー：Supabaseの初期化に失敗しています。ページを再読み込みしてください。");
+        return;
+    }
 
     try {
         // SQLで作成した関数 'delete_self' を呼び出す
@@ -296,28 +303,13 @@ document.getElementById('btn-delete-account').onclick = async () => {
 
         alert("完了しました。アカウントは完全に消滅しました。");
         
-        // ログアウト処理をしてリロード
+        // ログアウトして画面を更新
         await mySupabase.auth.signOut();
         location.reload();
     } catch (e) {
         console.error("消滅失敗:", e);
         alert("消滅に失敗しました: " + e.message);
     }
-};
-
-
-        if (error) throw error;
-
-        alert("完了しました。アカウントは完全に消滅しました。");
-        await mySupabase.auth.signOut();
-        location.reload();
-    // HTML側の catch ブロックを少し詳しくする
-} catch (e) {
-    console.error("詳細エラー:", e);
-    // レスポンスの中身が見れる場合は表示
-    alert("消滅に失敗しました。詳細はコンソールを確認してください。");
-}
-
 };
 
 
