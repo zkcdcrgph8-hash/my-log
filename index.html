@@ -287,7 +287,7 @@ document.getElementById('entries-container').innerHTML = data.map(e => `
 
 // アカウント完全削除ボタンの処理
 document.getElementById('btn-delete-account').onclick = async () => {
-    if (!confirm("【最終警告】これで最後です。アカウントと全てのデータを宇宙の塵にしますか？")) return;
+    if (!confirm("【最終警告】これで最後です。アカウントと全てのデータを完全に削除しますか？")) return;
 
     // mySupabaseが定義されているかチェック
     if (typeof mySupabase === 'undefined') {
@@ -297,7 +297,7 @@ document.getElementById('btn-delete-account').onclick = async () => {
 
     try {
         // SQLで作成した関数 'delete_self' を呼び出す
-        const { error } = await mySupabase.rpc('delete_self');
+        const { error } = await mySupabase.rpc('delete_user_account');
 
         if (error) throw error;
 
