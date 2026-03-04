@@ -22,6 +22,9 @@
         .del-btn:hover { color: #dc3545; }
         .search-box { background: #e9ecef; border: none; margin-bottom: 10px; }
         .range-btn { background:#666; font-size:12px; padding:8px 12px; width:auto; flex-shrink:0; }
+        /* 記録内の改行を反映させる */
+        .entry-content { white-space: pre-wrap; word-break: break-all; }
+
     </style>
 </head>
 <body>
@@ -262,7 +265,7 @@ document.getElementById('entries-container').innerHTML = data.map(e => `
         <div style="display: flex; gap: 12px; flex: 1;">
             <div style="font-size: 24px; padding-top: 2px;">${e.stamp || '📝'}</div>
             <div style="flex: 1;">
-                <div style="font-weight: 500; line-height: 1.4; margin-bottom: 4px; word-break: break-all;">${e.content}</div>
+                <div class="entry-content" style="font-weight: 500; line-height: 1.4; margin-bottom: 4px;">${e.content}</div>
                 <small style="color: #999; font-size: 11px;">${e.display_time}</small>
             </div>
         </div>
