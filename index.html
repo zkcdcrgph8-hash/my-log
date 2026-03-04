@@ -232,11 +232,6 @@
     // 入力するたびに高さを調整するよう指示
     document.getElementById('content').addEventListener('input', autoResizeTextarea);
     document.getElementById('btn-save').onclick = async () => {
-    // 「📷 記録を検証する」ボタンを押した時の処理
-    document.getElementById('btn-scan-start').onclick = () => {
-    document.getElementById('scan-modal').style.display = 'flex';
-    startScan(); // カメラを起動する関数を呼ぶ
-    };
         const content = document.getElementById('content').value;
         const stamp = document.querySelector('input[name="stamp"]:checked').value;
         const { data: { user } } = await mySupabase.auth.getUser();
@@ -247,6 +242,12 @@
         document.getElementById('content').value = '';
 	document.getElementById('content').style.height = '100px'; // 高さを元に戻す
 	loadEntries();
+    };
+
+// 「📷 記録を検証する」ボタンを押した時の処理
+    document.getElementById('btn-scan-start').onclick = () => {
+    document.getElementById('scan-modal').style.display = 'flex';
+    startScan(); // カメラを起動する関数を呼ぶ
     };
 
     window.setRange = (days) => { currentRangeDays = days; document.querySelectorAll('.range-btn').forEach(b => b.style.background='#666'); document.getElementById(`range-${days}`).style.background='#007bff'; loadEntries(); };
