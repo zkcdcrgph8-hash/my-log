@@ -229,6 +229,8 @@
     };
 
     document.getElementById('btn-logout').onclick = () => mySupabase.auth.signOut();
+    // 入力するたびに高さを調整するよう指示
+    document.getElementById('content').addEventListener('input', autoResizeTextarea);
     document.getElementById('btn-save').onclick = async () => {
         const content = document.getElementById('content').value;
         const stamp = document.querySelector('input[name="stamp"]:checked').value;
@@ -237,10 +239,22 @@
         const h1 = await generateHash(`${nowJst}-${user.id}-${content}-${stamp}`);
         const h2 = await generateHash(`${nowJst}-${user.id}-${stamp}-${h1}`);
         await mySupabase.from('entries').insert([{ content, stamp, user_id: user.id, display_time: nowJst, hash: h1, proof_hash: h2 }]);
-        document.getElementById('content').value = ''; loadEntries();
+        document.getElementById('content').value = '';
+	document.getElementById('content').style.height = '100px'; // 高さを元に戻す
+	loadEntries();
     };
 
     window.setRange = (days) => { currentRangeDays = days; document.querySelectorAll('.range-btn').forEach(b => b.style.background='#666'); document.getElementById(`range-${days}`).style.background='#007bff'; loadEntries(); };
+
+
+
+// テキストエリアの高さを自動調整する関数
+function autoResizeTextarea() {
+    const textarea = document.getElementById('content');
+    textarea.style.height = '100px'; // 一度高さをリセット（縮む時のため）
+    textarea.style.height = textarea.scrollHeight + 'px'; // 内容に合わせて高さを設定
+}
+
 
     async function loadEntries() {
         const { data: { user } } = await mySupabase.auth.getUser();
@@ -259,7 +273,7 @@
             const idMap = {"🍽️":"count-meal","☀️":"count-active","💤":"count-sleep","🛁":"count-bath","💊":"count-med"};
             if(idMap[k]) document.getElementById(idMap[k]).innerText = counts[k];
         });
-// loadEntries関数の中の innerHTML = data.map(...) の部分を差し替え
+
 document.getElementById('entries-container').innerHTML = data.map(e => `
     <div class="entry" style="display: flex; align-items: flex-start; justify-content: space-between; padding-right: 10px;">
         <div style="display: flex; gap: 12px; flex: 1;">
